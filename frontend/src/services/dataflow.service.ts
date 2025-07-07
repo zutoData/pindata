@@ -78,7 +78,7 @@ export class DataFlowService {
    * 获取所有支持的流水线类型
    */
   async getPipelineTypes(): Promise<PipelineType[]> {
-    const response = await apiClient.get<{ data: PipelineType[] }>('dataflow/pipeline/types');
+    const response = await apiClient.get<{ data: PipelineType[] }>('/api/v1/dataflow/pipeline/types');
     return response.data;
   }
 
@@ -86,7 +86,7 @@ export class DataFlowService {
    * 获取流水线配置模板
    */
   async getPipelineConfigTemplate(pipelineType: string): Promise<PipelineConfig> {
-    const response = await apiClient.get<{ data: PipelineConfig }>(`dataflow/pipeline/config/${pipelineType}`);
+    const response = await apiClient.get<{ data: PipelineConfig }>(`/api/v1/dataflow/pipeline/config/${pipelineType}`);
     return response.data;
   }
 
@@ -94,7 +94,7 @@ export class DataFlowService {
    * 创建流水线任务
    */
   async createTask(request: CreateTaskRequest): Promise<DataFlowTask> {
-    const response = await apiClient.post<{ data: DataFlowTask }>('dataflow/tasks', request);
+    const response = await apiClient.post<{ data: DataFlowTask }>('/api/v1/dataflow/tasks', request);
     return response.data;
   }
 
@@ -102,14 +102,14 @@ export class DataFlowService {
    * 启动流水线任务
    */
   async startTask(taskId: string): Promise<void> {
-    await apiClient.post(`dataflow/tasks/${taskId}/start`);
+    await apiClient.post(`/api/v1/dataflow/tasks/${taskId}/start`);
   }
 
   /**
    * 获取任务状态
    */
   async getTaskStatus(taskId: string): Promise<DataFlowTask> {
-    const response = await apiClient.get<{ data: DataFlowTask }>(`dataflow/tasks/${taskId}/status`);
+    const response = await apiClient.get<{ data: DataFlowTask }>(`/api/v1/dataflow/tasks/${taskId}/status`);
     return response.data;
   }
 
@@ -117,7 +117,7 @@ export class DataFlowService {
    * 获取任务结果
    */
   async getTaskResults(taskId: string): Promise<DataFlowResult[]> {
-    const response = await apiClient.get<{ data: DataFlowResult[] }>(`dataflow/tasks/${taskId}/results`);
+    const response = await apiClient.get<{ data: DataFlowResult[] }>(`/api/v1/dataflow/tasks/${taskId}/results`);
     return response.data;
   }
 
@@ -125,14 +125,14 @@ export class DataFlowService {
    * 取消任务
    */
   async cancelTask(taskId: string): Promise<void> {
-    await apiClient.post(`dataflow/tasks/${taskId}/cancel`);
+    await apiClient.post(`/api/v1/dataflow/tasks/${taskId}/cancel`);
   }
 
   /**
    * 获取文件库的所有任务
    */
   async getLibraryTasks(libraryId: string): Promise<DataFlowTask[]> {
-    const response = await apiClient.get<{ data: DataFlowTask[] }>(`dataflow/libraries/${libraryId}/tasks`);
+    const response = await apiClient.get<{ data: DataFlowTask[] }>(`/api/v1/dataflow/libraries/${libraryId}/tasks`);
     return response.data;
   }
 
@@ -140,7 +140,7 @@ export class DataFlowService {
    * 批量处理文件库
    */
   async batchProcessLibrary(libraryId: string, request: BatchProcessRequest): Promise<{ message: string; celery_task_id: string }> {
-    const response = await apiClient.post<{ data: { message: string; celery_task_id: string } }>(`dataflow/libraries/${libraryId}/batch-process`, request);
+    const response = await apiClient.post<{ data: { message: string; celery_task_id: string } }>(`/api/v1/dataflow/libraries/${libraryId}/batch-process`, request);
     return response.data;
   }
 
@@ -148,7 +148,7 @@ export class DataFlowService {
    * 获取任务下载链接
    */
   async getTaskDownloadLinks(taskId: string): Promise<{ task_info: DataFlowTask; download_links: any[] }> {
-    const response = await apiClient.get<{ data: { task_info: DataFlowTask; download_links: any[] } }>(`dataflow/tasks/${taskId}/download`);
+    const response = await apiClient.get<{ data: { task_info: DataFlowTask; download_links: any[] } }>(`/api/v1/dataflow/tasks/${taskId}/download`);
     return response.data;
   }
 
@@ -160,8 +160,8 @@ export class DataFlowService {
     const downloadBaseUrl = config.downloadBaseUrl || config.apiBaseUrl;
     const baseUrl = downloadBaseUrl.replace(/\/+$/, ''); // 移除结尾斜杠
     
-    // 构建完整的下载URL，确保包含API前缀
-    const downloadUrl = `${baseUrl}/api/v1/dataflow/tasks/${taskId}/download-zip`;
+    // 构建完整的下载URL，使用统一任务端点
+    const downloadUrl = `${baseUrl}/api/v1/unified/tasks/${taskId}/download-zip`;
     
     console.log('打包下载URL:', downloadUrl); // 调试日志
     console.log('downloadBaseUrl:', downloadBaseUrl); // 调试日志
@@ -226,7 +226,7 @@ export class DataFlowService {
    * 健康检查
    */
   async healthCheck(): Promise<{ status: string; dataflow_available: boolean; version: string }> {
-    const response = await apiClient.get<{ data: { status: string; dataflow_available: boolean; version: string } }>('dataflow/health');
+    const response = await apiClient.get<{ data: { status: string; dataflow_available: boolean; version: string } }>('/api/v1/dataflow/health');
     return response.data;
   }
 
@@ -234,7 +234,7 @@ export class DataFlowService {
    * 获取统计信息
    */
   async getStats(): Promise<{ total_tasks: number; by_status: Record<string, number> }> {
-    const response = await apiClient.get<{ data: { total_tasks: number; by_status: Record<string, number> } }>('dataflow/stats');
+    const response = await apiClient.get<{ data: { total_tasks: number; by_status: Record<string, number> } }>('/api/v1/dataflow/stats');
     return response.data;
   }
 }
