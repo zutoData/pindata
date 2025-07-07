@@ -1,0 +1,12 @@
+{
+  "overview": "概览",
+  "datasets": "数据集",
+  "tasks": "任务",
+  "rawData": "原始数据",
+  "governance": "数据治理(开发中)",
+  "plugins": "插件",
+  "settings": "设置",
+  "storage": "存储",
+  "expand": "展开侧边栏",
+  "collapse": "收起侧边栏"
+}

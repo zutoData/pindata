@@ -1,0 +1,15 @@
+data_content_classification:
+  local_tool_for_sample:
+    sample_size: 10
+    use_file_sys: 1
+    cache_type: json
+
+recommendation_inference_pipeline:
+  local_tool_for_sample:
+    sample_size: 1
+    use_file_sys: 1
+    cache_type: json
+    
+execute_the_recommended_pipeline:
+  local_tool_for_execute_the_recommended_pipeline:
+    dry_run: False

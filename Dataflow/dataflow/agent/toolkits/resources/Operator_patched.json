@@ -1,0 +1,6549 @@
+{
+  "MIXTURE": [
+    {
+      "node": 1,
+      "name": "NgramScorer",
+      "description": "The description of NgramScorer is not implemented!",
+      "command": {
+        "init": [
+          {
+            "name": "ngrams",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 2,
+      "name": "LexicalDiversityScorer",
+      "description": "The description of LexicalDiversityScorer is not implemented!",
+      "command": {
+        "init": [
+          {
+            "name": "metrics_to_keep",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 3,
+      "name": "LangkitScorer",
+      "description": "The description of LangkitScorer is not implemented!",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 4,
+      "name": "DeitaQualityScorer",
+      "description": "使用Deita指令质量分类器评估指令质量",
+      "command": {
+        "init": [
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "deita_quality_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 5,
+      "name": "InstagScorer",
+      "description": "使用Instag评分器评估指令意图标签",
+      "command": {
+        "init": [
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_new_tokens",
+            "default": 1024,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "temperature",
+            "default": 0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "do_sample",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_return_sequences",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "return_dict_in_generate",
+            "default": true,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "instag_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 6,
+      "name": "DeitaComplexityScorer",
+      "description": "使用Deita指令复杂度分类器评估指令复杂度",
+      "command": {
+        "init": [
+          {
+            "name": "device",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "deita_complexity_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 7,
+      "name": "PairQualScorer",
+      "description": "使用PairQual评分器评估文本质量",
+      "command": {
+        "init": [
+          {
+            "name": "model_cache_dir",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "lang",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 8,
+      "name": "SuperfilteringScorer",
+      "description": "使用Superfiltering评分器评估指令质量",
+      "command": {
+        "init": [
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_input_key",
+            "default": "input",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "superfiltering_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 9,
+      "name": "QuratingScorer",
+      "description": "使用Qurating评分器评估文本质量",
+      "command": {
+        "init": [
+          {
+            "name": "map_batch_size",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_workers",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device_batch_size",
+            "default": 16,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "labels",
+            "default": [
+              "writing_style",
+              "required_expertise",
+              "facts_and_trivia",
+              "educational_value"
+            ],
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 10,
+      "name": "AnswerExtraction_QwenMathEval",
+      "description": "该算子用于从数学问题回答中提取规范化答案表达式，进行字符串清洗、单位处理和格式标准化。\n\n输入参数：\n- input_key：输入数据字段名\n- answer_key：原始答案字段名\n- output_key：处理后的答案字段名\n- unit_texts：需要过滤的单位文本列表\n\n输出参数：\n- output_key：标准化后的数学表达式字段",
+      "command": {
+        "init": [
+          {
+            "name": "dataset_name",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "response_key",
+            "default": "pseudo_correct_solution_example",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "extraction_key",
+            "default": "extraction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 11,
+      "name": "AnswerGenerator",
+      "description": "该算子用于生成数学问题的标准答案，调用大语言模型进行分步推理和计算。\n\n输入参数：\n- input_file：输入文件路径\n- output_file：输出文件路径\n- generator_type：生成器类型（aisuite/request）\n- model_name：使用的大模型名称\n- max_worker：并发线程数\n\n输出参数：\n- output_key：生成的答案字段",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 12,
+      "name": "PseudoAnswerGenerator",
+      "description": "该算子生成多个候选答案并通过统计选择最优解，实现伪答案生成。\n\n输入参数：\n- input_file：输入文件路径\n- output_file：输出文件路径\n- max_times：最大生成次数\n- selection_mode：统计选择模式（frequency/consistency）\n\n输出参数：\n- final_answer：最终选择答案字段\n- candidate_answers：候选答案列表字段",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_times",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_answer",
+            "default": "pseudo_answers",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_answer_value",
+            "default": "pseudo_answer_value",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_solutions",
+            "default": "pseudo_solutions",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_correct_solution_example",
+            "default": "pseudo_correct_solution_example",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 13,
+      "name": "QuestionCategoryClassifier",
+      "description": "该算子用于对用户问题进行多级分类（主分类和子分类）。通过大语言模型对输入问题进行语义分析，输出分类编码结果。\n\n输入参数：\n- db_port/db_name/table_name：数据库连接参数（存储模式）\n- input_file/output_file：文件路径（文件模式）\n- input_key：输入数据中问题字段的键名\n- generator_type：模型调用方式（aisuite/request）\n\n输出参数：\n- classification_result：包含主分类和子分类的编码结果",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "question_category",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 14,
+      "name": "QuestionDifficultyClassifier",
+      "description": "该算子用于评估问题的难度等级。通过大语言模型分析问题复杂度，输出1-10级的难度评分。\n\n输入参数：\n- eval_stage：评估阶段标识\n- read_min/max_score：分数过滤阈值\n- 其他参数同QuestionCategoryClassifier\n\n输出参数：\n- difficulty_score：数值型难度评分（1-10）",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "difficulty_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 15,
+      "name": "QuestionGenerator",
+      "description": "该算子用于基于现有问题生成新问题。\n\n输入参数：\n- eval_stage：评估阶段标识\n- read_min/max_score：分数过滤阈值\n- 其他参数同基础分类器\n\n输出参数：\n- generated_questions：生成的新问题列表（每个原问题生成1-5个）",
+      "command": {
+        "init": [
+          {
+            "name": "num_prompts",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 16,
+      "name": "PretrainFormatConverter",
+      "description": "该算子用于将SFT格式数据转换为预训练格式。\n\n输入参数：\n- read_key_question：问题字段名\n- read_key_answer：答案字段名\n- output_key：输出文本字段名\n\n输出参数：\n- output_key：输出文本字段名，包含问题和答案的拼接结果\n- 输出文件：转换后的预训练格式数据文件路径",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "read_key_question",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "read_key_answer",
+            "default": "answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 17,
+      "name": "PretrainGenerator",
+      "description": "基于给定文档内容，生成预训练格式的多轮对话问答数据。",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "raw_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "generated_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 18,
+      "name": "SupervisedFinetuneGenerator",
+      "description": "基于给定文档内容，生成监督微调格式的问答数据。",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "raw_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 19,
+      "name": "DatabaseSchemaExtractor",
+      "description": "该算子用于提取出数据库模式和数据库定义语言，并将其格式化输出。\n\n输入参数：\n- table_schema_path: 输入的table schema文件路径\n- table_schema_file_db_key: 输入的table schema文件中db的key\n- input_db_key: 输入文件中每条数据对应的db的key\n- database_base_path: 数据库路径\n- input_question_key: Question key\n- input_sql_key: SQL key\n- selected_schema_key: 上一步Schema Linking中提取出的shcema的key\n- num_threads: 多线程并行数\n\n输出参数：\n- output_raw_schema_key: 原始的shcema中，没有文本格式，用json格式保存\n- output_ddl_key: 所在数据库的ddl\n- output_whole_format_schema_key: 完整的shcema构成的格式化信息，包括schema、example等\n- output_selected_format_schema_key: 由Schema Linking筛选出来的schema构成的格式化数据库信息",
+      "command": {
+        "init": [
+          {
+            "name": "table_info_file",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_db_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "table_schema_file_db_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_raw_schema_key",
+            "default": "whole_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_ddl_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_whole_format_schema_key",
+            "default": "whole_format_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 20,
+      "name": "ExtraKnowledgeGenerator",
+      "description": "该算子用于生成基于构建SQL生成所需的额外知识\n\n输入参数：\n- input_question_key: 自然语言问题的key\n- input_sql_key: SQL的key\n- input_schema_key: Schema提取那一步中提取出的完整Schema的key\n- exist_knowledge: 当前数据集是否存在 knowledge，True or False\n- max_retries: 提取额外知识的最多尝试时间，若某次提取失败，则会尝试再次生成并提取\n- num_threads: 多线程并行数\n\n输出参数：\n- output_knowledge_key: 生成的额外知识的key",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "exist_knowledge",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_retries",
+            "default": 2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "batch_size",
+            "default": 50,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_schema_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_knowledge_key",
+            "default": "evidence",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 21,
+      "name": "PromptGenerator",
+      "description": "该算子用于构建完整的提示词和思维链推理过程。\n\n输入参数：\n- input_question_key: 问题键（如：question）\n- input_sql_key: SQL语句键（如：SQL）\n- input_schema_key: 数据库DDL信息键（如：ddl）\n- input_evidence_key: 输入中额外知识的键（如：evidence）\n- prompt_type: 提示词格式（如：omni-sql）\n- output_sft_prompt_key: SFT提示词输出键（如：sft_prompt）\n- output_rl_prompt_key: RL提示词输出键（如：rl_prompt）\n- output_cot_key: 思维链推理输出键（如：sft_output）\n- input_key: 输入数据主键（如：data）\n- input_dbid_key: 数据库ID键（如：db_id）\n- db_root_path: 数据库根目录（如：/mnt/public/data/.../dev_databases）\n- num_threads: 多线程并行数\n\n输出参数：\n- output_sft_prompt_key: SFT提示词\n- output_rl_prompt_key: RL提示词\n- output_cot_key: 思维链推理输出",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "timeout",
+            "default": 60,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_schema_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_sft_prompt_key",
+            "default": "sft_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_rl_prompt_key",
+            "default": "rl_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_cot_key",
+            "default": "sft_output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 22,
+      "name": "QuestionRefiner",
+      "description": "该算子用于对已有的自然语言问题进行润色改写。\n\n输入参数：\n- input_question_key: 问题键\n- num_threads: 多线程并行数\n\n输出参数：\n- output_refined_question_key: 生成的润色后问题的key",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_retries",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_refined_question_key",
+            "default": "refined_question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 23,
+      "name": "SchemaLinking",
+      "description": "该算子用于通过解析SQL语句提取使用的数据库Schema。\n\n输入参数：\n- table_info_file：tables.jsonl文件路径，包含数据库Schema信息\n- input_sql_key：SQL语句键\n- input_dbid_key：db_id key，数据库名\n\n输出参数：\n- output_used_schema_key：SQL中实际使用的表和列信息，格式为字典，键为表名，值为列名列表",
+      "command": {
+        "init": [
+          {
+            "name": "table_info_file",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_used_schema_key",
+            "default": "used_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 24,
+      "name": "SQLDifficultyClassifier",
+      "description": "该算子用于基于SQL中的关键词数量统计划分难度。\n\n输入参数：\n- input_sql_key：SQL key\n- input_dbid_key：db_id key，数据库名\n\n输出参数：\n- output_key：SQL语句的难度标签",
+      "command": {
+        "init": [
+          {
+            "name": "max_score",
+            "default": 2.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "min_score",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_difficulty_key",
+            "default": "sql_component_difficulty",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 25,
+      "name": "SQLFilter",
+      "description": "该算子用于筛选SQL执行异常和模型判定SQL与自然语言问题是否一致。\n\n输入参数：\n- input_sql_key: 输入数据中SQL语句的字段名\n- input_question_key: 输入数据中自然语言问题的字段名\n- input_dbid_key: 输入数据中数据库ID的字段名\n- db_root_path: 数据库文件的根目录路径\n- num_cpus: 并行线程数\n- meta_time_out: SQL执行超时时间",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_cpus",
+            "default": 20,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "meta_time_out",
+            "default": 120,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 26,
+      "name": "Text2SQLDifficultyClassifier",
+      "description": "该算子用于根据大模型生成SQL的准确率对Text2SQL问题进行难度分类。\n\n输入参数：\n- input_sql_key：原始SQL的键名\n- input_dbid_key：数据库ID的键名\n- input_prompt_key：Text2SQL提示词的键名\n- db_root_path：数据库文件的根目录路径\n- num_cpus：并行执行的CPU线程数\n- meta_time_out：SQL执行的超时时间\n\n难度划分阈值：\n- easy_medium：正确SQL数 ≥ 该值为easy难度（默认：9）\n- medium_hard：正确SQL数 ≥ 该值且 < easy_medium为medium难度（默认：5）\n- hard_extra：正确SQL数 ≥ 该值且 < medium_hard为hard难度（默认：2）\n\n输出参数：\n- output_difficulty_key：SQL执行难度标签的键名",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_cpus",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "meta_time_out",
+            "default": 120.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "easy_medium",
+            "default": 9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "medium_hard",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "hard_extra",
+            "default": 2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_prompt_key",
+            "default": "rl_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_difficulty_key",
+            "default": "sql_execution_difficulty",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 27,
+      "name": "KnowledgeExtractor",
+      "description": "知识提取算子：支持从多种文件格式中提取结构化内容并转换为标准Markdown\n核心功能：\n1. PDF文件：使用MinerU解析引擎提取文本/表格/公式，保留原始布局\n2. Office文档(DOC/PPT等)：通过DocConverter转换为Markdown格式\n3. 网页内容(HTML/XML)：使用trafilatura提取正文并转为Markdown\n4. 纯文本(TXT/MD)：直接透传不做处理\n特殊处理：\n- 自动识别中英文文档(lang参数)\n- 支持本地文件路径和URL输入\n- 生成中间文件到指定目录(intermediate_dir)",
+      "command": {
+        "init": [
+          {
+            "name": "kwargs",
+            "default": null,
+            "kind": "VAR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "raw_file",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "url",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "lang",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 28,
+      "name": "KnowledgeCleaner",
+      "description": "知识清洗算子：对原始知识内容进行标准化处理，包括HTML标签清理、特殊字符规范化、链接处理和结构优化，提升RAG知识库的质量。主要功能：\n1. 移除冗余HTML标签但保留语义化标签\n2. 标准化引号/破折号等特殊字符\n3. 处理超链接同时保留文本\n4. 保持原始段落结构和代码缩进\n5. 确保事实性内容零修改",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "lang",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "raw_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "cleaned",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 29,
+      "name": "AutoPromptGenerator",
+      "description": "该算子用于为给的的文档片段生成提示词，用于生成种子QA对\n\n输入参数：\n- input_key: 包含文档片段的字段名\n- output_key: 包含提示词的字段名\n",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "generated_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 30,
+      "name": "QAScorer",
+      "description": "该算子用于为给的的文档片段生成种子QA对打分\n\n输入参数：\n- input_question_key: Field name containing the generated question\n- input_answer_key: Field name containing the generated answer\n- output_question_quality_key: Field name containing the question quality grade\n- output_question_quality_feedback_key: Field name containing the question quality feedback\n- output_answer_alignment_key: Field name containing the answer alignment grade\n- output_answer_alignment_feedback_key: Field name containing the answer alignment feedback\n- output_answer_verifiability_key: Field name containing the answer verifiability grade\n- output_downstream_value_key: Field name containing the downstream value grade\n- output_downstream_value_feedback_key: Field name containing the downstream value feedback\n",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "generated_question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_answer_key",
+            "default": "generated_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_question_quality_key",
+            "default": "question_quality_grades",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_question_quality_feedback_key",
+            "default": "question_quality_feedbacks",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_answer_alignment_key",
+            "default": "answer_alignment_grades",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_answer_alignment_feedback_key",
+            "default": "answer_alignment_feedbacks",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_answer_verifiability_key",
+            "default": "answer_verifiability_grades",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_answer_verifiability_feedback_key",
+            "default": "answer_verifiability_feedbacks",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_downstream_value_key",
+            "default": "downstream_value_grades",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_downstream_value_feedback_key",
+            "default": "downstream_value_feedbacks",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 31,
+      "name": "QAGenerator",
+      "description": "该算子用于生成对应文档片段的QA对。\n\n输入参数：\n- input_key: 包含文档片段的字段名\n- prompt_key: 包含提示词的字段名\n- output_quesion_key: 包含生成问题的字段名\n- output_answer_key: 包含生成答案的字段名\n",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "prompt_key",
+            "default": "generated_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_quesion_key",
+            "default": "generated_question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_answer_key",
+            "default": "generated_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 32,
+      "name": "Doc2Query",
+      "description": "RAREPipeline: Doc2Query 算子使用大语言模型为给定文档生成推理密集型问题。\n\n输入参数：\n- input_key: 包含文档片段的字段名\n- output_question_key: 包含生成问题的字段名\n- output_scenario_key: 包含生成情景的字段名\n",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_scenario_key",
+            "default": "scenario",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_attempts",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 33,
+      "name": "BM25HardNeg",
+      "description": "RAREPipeline: BM25HardNeg 算子使用 BM25 算法为给定查询挖掘困难负样本。\n\n输入参数：\n- input_question_key: 包含查询的字段名。\n- input_text_key: 包含正面文档的字段名。\n- output_negatives_key: 用于存储挖掘出的困难负样本列表的字段名。\n- num_neg: 每个查询需要挖掘的困难负样本数量。\n",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_text_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_negatives_key",
+            "default": "hard_negatives",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_neg",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 34,
+      "name": "ReasonDistill",
+      "description": "RAREPipeline: ReasonDistill 算子通过组合正负示例文档，提示大语言模型生成详细的推理过程。\n\n输入参数：\n- input_text_key: 包含正面文档的字段名。\n- input_question_key: 包含问题的字段名。\n- input_scenario_key: 包含情景的字段名。\n- input_hardneg_key: 包含困难负样本列表的字段名。\n- output_key: 用于存储生成推理过程的字段名。\n",
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_text_key",
+            "default": "text",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_scenario_key",
+            "default": "scenario",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_hardneg_key",
+            "default": "hard_negatives",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "reasoning",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 35,
+      "name": "AnswerFormatterFilter",
+      "description": "该算子用于检查答案格式是否符合规范，主要验证数学答案是否包含正确的\\boxed{}标记。\n\n输入参数：\n- input_key：输入字段名\n- result_key：结果字段名\n\n输出参数：\n- 通过格式检查返回1，否则返回0",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 36,
+      "name": "AnswerGroundTruthFilter",
+      "description": "该算子用于对比预测答案与标准答案的匹配度，支持精确匹配和数学验证两种方式。\n\n输入参数：\n- test_answer_key：预测答案字段名\n- gt_answer_key：标准答案字段名\n- compare_method：比较方法（exact/math_verify）\n\n输出参数：\n- 匹配成功返回1，否则返回0",
+      "command": {
+        "init": [
+          {
+            "name": "compare_method",
+            "default": "math_verify",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "test_answer_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "gt_answer_key",
+            "default": "golden_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 37,
+      "name": "AnswerJudger_MathVerify",
+      "description": "该算子通过符号计算验证答案正确性，执行数学表达式解析和等价性验证。\n\n输入参数：\n- answer_key：待验证答案字段名\n- gt_key：标准答案字段名\n- tolerance：数值容差阈值\n- symbolic_check：是否启用符号验证\n\n输出参数：\n- result_key：验证结果字段（True/False）",
+      "command": {
+        "init": [
+          {
+            "name": "config",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "answer_key",
+            "default": "student_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "gt_key",
+            "default": "correct_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "result_key",
+            "default": "result",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 38,
+      "name": "AnswerNgramFilter",
+      "description": "该算子基于n-gram重复率过滤答案，检测回答中的重复模式。\n\n输入参数：\n- min_score：最小可接受分数\n- max_score：最大可接受分数\n- ngrams：n-gram大小\n\n输出参数：\n- 分数在范围内返回1，否则返回0",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "ngrams",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "question_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "answer_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 39,
+      "name": "AnswerPipelineRoot",
+      "description": "答案处理流程根节点，负责将输入数据根据有无真实标签GT分发到不同处理分支。\n\n输入参数：\n- input_file：输入文件路径\n- output_dir：输出目录路径\n- branch_config：分支配置参数\n- parallel_workers：并行工作线程数\n\n输出参数：\n- 多个输出文件路径（根据分支配置生成）",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_answer_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_gt_key",
+            "default": "golden_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 40,
+      "name": "AnswerTokenLengthFilter",
+      "description": "该算子根据token数量过滤过长的答案。\n\n输入参数：\n- max_answer_token_length：最大token数\n- tokenizer_dir：分词器路径\n- read_min/max_score：分数范围\n\n输出参数：\n- 长度合规返回1，否则返回0",
+      "command": {
+        "init": [
+          {
+            "name": "max_answer_token_length",
+            "default": 8192,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "tokenizer_dir",
+            "default": "Qwen/Qwen2.5-0.5B-Instruct",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 41,
+      "name": "QuestionFilter",
+      "description": "该算子用于对数学问题进行正确性检查，包括格式是否规范、语义是否合理、条件是否矛盾以及是否具备充分信息可解。调用大语言模型依次执行四阶段判断，最终返回每个问题是否合格的二分类结果（0或1）。\n\n输入参数：\n- input_question_key：输入问题字段名\n- api_key：调用大模型所需的API密钥\n- model_name：使用的大模型名称\n- max_worker：并发线程数，用于加速处理\n\n输出参数：\n- result_key：判断结果字段名，值为0或1",
+      "command": {
+        "init": [
+          {
+            "name": "system_prompt",
+            "default": "You are a helpful assistant.",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "math_problem",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 42,
+      "name": "LanguageFilter",
+      "description": "使用FastText语言识别模型过滤数据",
+      "command": {
+        "init": [
+          {
+            "name": "allowed_languages",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "language_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 43,
+      "name": "DeitaQualityFilter",
+      "description": "使用Deita指令质量分类器过滤掉低质量指令数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 2.5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 10000.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "deita_quality_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 44,
+      "name": "DeitaComplexityFilter",
+      "description": "使用Deita指令质量分类器过滤掉低质量指令数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 3.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 5.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "deita_quality_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 45,
+      "name": "InstagFilter",
+      "description": "使用Instag评分器过滤掉低标签数量数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_new_tokens",
+            "default": 1024,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "instag_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 46,
+      "name": "PairQualFilter",
+      "description": "使用PairQual评分器过滤掉低质量数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 10000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "lang",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "pair_qual_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 47,
+      "name": "QuratingFilter",
+      "description": "使用Qurating评分器过滤掉低质量数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_scores",
+            "default": {
+              "writing_style": 0,
+              "required_expertise": 0,
+              "facts_and_trivia": 0,
+              "educational_value": 0
+            },
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_scores",
+            "default": {
+              "writing_style": 9,
+              "required_expertise": 9,
+              "facts_and_trivia": 9,
+              "educational_value": 9
+            },
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "map_batch_size",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_workers",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device_batch_size",
+            "default": 16,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "labels",
+            "default": [
+              "writing_style",
+              "required_expertise",
+              "facts_and_trivia",
+              "educational_value"
+            ],
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 48,
+      "name": "SuperfilteringFilter",
+      "description": "使用Superfiltering评分器过滤掉低质量数据",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_input_key",
+            "default": "input",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "superfiltering_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 49,
+      "name": "FineWebEduFilter",
+      "description": "使用Fineweb-edu质量分类器过滤低质量文本",
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 2.5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 10000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "fineweb_edu_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 50,
+      "name": "ColonEndFilter",
+      "description": "检查文本是否以冒号结尾，过滤掉以冒号结尾的文本",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 51,
+      "name": "WordNumberFilter",
+      "description": "检查文本中的单词数量是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "min_words",
+            "default": 20,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_words",
+            "default": 100000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "word_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 52,
+      "name": "SentenceNumberFilter",
+      "description": "检查文本中的句子数量是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "min_sentences",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_sentences",
+            "default": 7500,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "sentence_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 53,
+      "name": "LineEndWithEllipsisFilter",
+      "description": "检查文本行是否以省略号结尾，过滤掉以省略号结尾的文本行",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_end_with_ellipsis_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 54,
+      "name": "ContentNullFilter",
+      "description": "检查文本内容是否为空，过滤掉空文本",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "content_null_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 55,
+      "name": "SymbolWordRatioFilter",
+      "description": "检查文本中的符号与单词的比例是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.4,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "symbol_word_ratio_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 56,
+      "name": "AlphaWordsFilter",
+      "description": "检查文本中包含字母字符的单词比例是否大于0.6，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "alpha_words_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 57,
+      "name": "HtmlEntityFilter",
+      "description": "检查文本中是否包含HTML实体，过滤掉包含HTML实体的文本",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "html_entity_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 58,
+      "name": "IDCardFilter",
+      "description": "检查文本中是否包含身份证相关内容，过滤掉包含身份证相关内容的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "id_card_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 59,
+      "name": "NoPuncFilter",
+      "description": "检查文本中是否不含标点符号，过滤掉不含标点符号的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 112,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "no_punc_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 60,
+      "name": "SpecialCharacterFilter",
+      "description": "检查文本中是否包含特殊字符，过滤掉包含特殊字符的文本",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "special_character_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 61,
+      "name": "WatermarkFilter",
+      "description": "检查文本中是否包含水印，过滤掉包含水印的文本",
+      "command": {
+        "init": [
+          {
+            "name": "watermarks",
+            "default": [
+              "Copyright",
+              "Watermark",
+              "Confidential"
+            ],
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "watermark_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 62,
+      "name": "MeanWordLengthFilter",
+      "description": "检查文本中的平均单词长度是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "min_length",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 10,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "mean_word_length_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 63,
+      "name": "StopWordFilter",
+      "description": "检查文本中的停用词比例是否超过阈值，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "stop_word_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 64,
+      "name": "CurlyBracketFilter",
+      "description": "检查文本中括号比例是否过高，过滤掉括号比例过高的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.025,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "curly_bracket_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 65,
+      "name": "CapitalWordsFilter",
+      "description": "检查文本中的大写单词比例是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "capital_words_filter",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 66,
+      "name": "LoremIpsumFilter",
+      "description": "检查文本中是否包含Lorem Ipsum内容，过滤掉包含Lorem Ipsum内容的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3e-08,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "loremipsum_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 67,
+      "name": "UniqueWordsFilter",
+      "description": "检查文本中的唯一单词比例是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "unique_words_filter",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 68,
+      "name": "CharNumberFilter",
+      "description": "检查文本中的字符数量是否在指定范围内，过滤掉不符合条件的文本",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 100,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "char_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 69,
+      "name": "LineStartWithBulletpointFilter",
+      "description": "检查文本行是否以项目符号开头，过滤掉以项目符号开头的文本行",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_start_with_bullet_point_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 70,
+      "name": "LineWithJavascriptFilter",
+      "description": "检查文本行是否包含'javascript'，过滤掉包含'javascript'的文本行",
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_with_javascript_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 71,
+      "name": "BlocklistFilter",
+      "description": "使用预定义的阻止词列表过滤文本",
+      "command": {
+        "init": [
+          {
+            "name": "language",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "threshold",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "blocklist_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 72,
+      "name": "MinHashDeduplicator",
+      "description": "使用MinHash算法进行文本去重",
+      "command": {
+        "init": [
+          {
+            "name": "num_perm",
+            "default": 128,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "threshold",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_n_gram",
+            "default": true,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "ngram",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_keys",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "minhash_deduplicated_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 73,
+      "name": "ContentChooser",
+      "description": "该算子用于从大量的文档片段中选取部分文档片段，用于后续生成种子QA对\n\n输入参数:\n- input_key: 包含文档片段的字段名\n- embedding_model_path: 嵌入模型路径\n- num_samples: 选取的文档片段数量\n- method: 选择方法，随机或k-center-greedy\n\n",
+      "command": {
+        "init": [
+          {
+            "name": "embedding_model_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_samples",
+            "default": 1000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "method",
+            "default": "random",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 74,
+      "name": "HtmlUrlRemoverRefiner",
+      "description": "去除文本中的URL和HTML标签",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 75,
+      "name": "RemoveExtraSpacesRefiner",
+      "description": "去除文本中的多余空格",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 76,
+      "name": "RemoveEmojiRefiner",
+      "description": "去除文本中的表情符号",
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": "",
+      "depends_on": [],
+      "mode": ""
+    }
+  ],
+  "TEXT2SQL": [
+    {
+      "node": 1,
+      "name": "SQLFilter",
+      "type": "generator",
+      "description": "数据筛选：筛选 gold SQL 执行异常，以及模型判定 gold SQL 与 question 不一致的数据；可选地将 evidence 和 question 合并到 evidence_question 字段。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "SQL": "SELECT SUM(amount) FROM sales;",
+          "evidence": "sales table contains all transactions"
+        }
+      ],
+      "output": {
+        "output_file": [
+          {
+            "question_id": 123,
+            "db_id": "db1",
+            "question": "Find the total sales amount?",
+            "SQL": "SELECT SUM(amount) FROM sales;",
+            "evidence": "sales table contains all transactions",
+            "evidence_question": "sales table contains all transactions Find the total sales amount?"
+          }
+        ],
+        "output_note_file": [
+          {
+            "question_id": 123,
+            "db_id": "db1",
+            "question": "Find the total sales amount?",
+            "SQL": "SELECT SUM(amount) FROM sales;",
+            "evidence": "sales table contains all transactions",
+            "evidence_question": "sales table contains all transactions Find the total sales amount?",
+            "is_correct": true,
+            "exec_result": "[{\"SUM(amount)\": 10000}]",
+            "consistency": true,
+            "consistency_reason": "SQL matches question intent"
+          }
+        ]
+      },
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_cpus",
+            "default": 20,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "meta_time_out",
+            "default": 120,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 2,
+      "name": "SQLDifficultyClassifier",
+      "type": "generator",
+      "description": "SQL 难度分类：提取 SQL 中的关键词，基于关键词数量统计划分难度。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "SQL": "SELECT SUM(amount) FROM sales;"
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "SQL": "SELECT SUM(amount) FROM sales;",
+          "sql_component_difficulty": 1.0
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "max_score",
+            "default": 2.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "min_score",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_difficulty_key",
+            "default": "sql_component_difficulty",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 3,
+      "name": "SchemaLinking",
+      "type": "generator",
+      "description": "模式链接：从数据库的所有表和列中提取需要的表和列；支持 eval（模型预测）和 train（SQL 匹配）两种模式。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "sql_component_difficulty": 1.0
+        },
+        {
+          "db_id": "db1",
+          "table_names_original": [
+            "sales",
+            "customers"
+          ],
+          "table_names": [
+            "Sales",
+            "Customers"
+          ],
+          "column_names_original": [
+            [
+              "id",
+              "amount"
+            ],
+            [
+              "id",
+              "name"
+            ]
+          ],
+          "column_names": [
+            [
+              "ID",
+              "AMOUNT"
+            ],
+            [
+              "ID",
+              "NAME"
+            ]
+          ]
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "sql_component_difficulty": 1.0,
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          }
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "table_info_file",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_used_schema_key",
+            "default": "used_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 4,
+      "name": "DatabaseSchemaExtractor",
+      "type": "generator",
+      "description": "提取并构造所需的 Schema 数据：基于 Schema Linking 筛选结果和数据库实例，构造格式化的 Schema 子集与示例。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "sql_component_difficulty": 1.0,
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          }
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "raw_schema": {
+            "sales": {
+              "columns": [
+                "id",
+                "amount"
+              ]
+            }
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "table_info_file",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_db_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "table_schema_file_db_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_raw_schema_key",
+            "default": "whole_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_ddl_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_whole_format_schema_key",
+            "default": "whole_format_schema",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 5,
+      "name": "ExtraKnowledgeGenerator",
+      "type": "generator",
+      "description": "额外知识生成：基于 NL Question、SQL、Schema 生成所需的补充知识，填补语言描述与 SQL 之间的 gap。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)"
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "evidence": "The sales table stores transaction amounts per row.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)",
+          "extra_knowledge": "Each row in sales represents one transaction amount in USD."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "exist_knowledge",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_retries",
+            "default": 2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "batch_size",
+            "default": 50,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_schema_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_knowledge_key",
+            "default": "evidence",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 6,
+      "name": "QuestionRefiner",
+      "type": "generator",
+      "description": "自然语言问题优化：将表达不清或多问合一的 NL question 拆分、统一为以提问词开头的格式，并通过 LLM 复核。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total and average sales?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)"
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total and average sales?",
+          "refined_question": "What is the total sales amount? How much is the average sale?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_retries",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_refined_question_key",
+            "default": "refined_question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 7,
+      "name": "PromptGenerator",
+      "type": "generator",
+      "description": "提示词生成：基于 NL Question、SQL Query、Schema 按特定格式构造 Prompt，支持 dail-sql 与 omni-sql 两种 Zero-shot 模式，可选 CoT 引导。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "refined_question": "What is the total sales amount?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)"
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "refined_question": "What is the total sales amount?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)",
+          "final_prompt": "### Instruction:\nGenerate an SQL query for the following question...\n### Question:\nWhat is the total sales amount?\n### Schema:\n..."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_threads",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "timeout",
+            "default": 60,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_question_key",
+            "default": "question",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_schema_key",
+            "default": "ddl",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_sft_prompt_key",
+            "default": "sft_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_rl_prompt_key",
+            "default": "rl_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_cot_key",
+            "default": "sft_output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 8,
+      "name": "Text2SQLDifficultyClassifier",
+      "type": "generator",
+      "description": "SQL 生成难度分类：基于模型执行正确率，对 SQL 生成难度进行划分（easy/medium/hard）。",
+      "input": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "refined_question": "What is the total sales amount?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECIMAL) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)",
+          "final_prompt": "### Instruction:\nGenerate an SQL query for the following question...\n### Question:\nWhat is the total sales amount?\n### Schema:\n..."
+        }
+      ],
+      "output": [
+        {
+          "question_id": 123,
+          "db_id": "db1",
+          "question": "Find the total sales amount?",
+          "refined_question": "What is the total sales amount?",
+          "evidence": "Each row in sales represents one transaction amount in USD.",
+          "sql_component_difficulty": 1.0,
+          "schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "selected_schema": {
+            "tables": [
+              "sales"
+            ],
+            "columns": [
+              [
+                "id",
+                "amount"
+              ]
+            ]
+          },
+          "ddl": "CREATE TABLE sales (id INT, amount DECIMAL);",
+          "whole_format_schema": "Table sales(id: INT, amount: DECimal) — examples: (1, 100.00), (2, 200.00)",
+          "selected_format_schema": "sales(id: INT, amount: DECIMAL)",
+          "final_prompt": "### Instruction:\nGenerate an SQL query for the following question...\n### Question:\nWhat is the total sales amount?\n### Schema:\n...",
+          "sql_execution_difficulty": "easy",
+          "cnt_true": 9,
+          "predicted_sqls": [
+            "SELECT SUM(amount) FROM sales;",
+            "SELECT SUM(amount) AS total FROM sales;"
+          ]
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "db_root_path",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_cpus",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "meta_time_out",
+            "default": 120.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "easy_medium",
+            "default": 9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "medium_hard",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "hard_extra",
+            "default": 2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_dbid_key",
+            "default": "db_id",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_sql_key",
+            "default": "SQL",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_prompt_key",
+            "default": "rl_prompt",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_difficulty_key",
+            "default": "sql_execution_difficulty",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": "GPU"
+    }
+  ],
+  "TEXT": [
+    {
+      "node": 1,
+      "name": "LanguageFilter",
+      "type": "processor",
+      "description": "语言过滤，只保留英文，删除部分数据",
+      "input": [
+        {
+          "text": "Hello world"
+        },
+        {
+          "text": "你好，世界"
+        }
+      ],
+      "output": [
+        {
+          "text": "Hello world"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "allowed_languages",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "language_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 2,
+      "name": "RemoveExtraSpacesRefiner",
+      "type": "processor",
+      "description": "数据改写，删除多余空格，只改写指定 key 中的内容，不改变数据总量",
+      "input": [
+        {
+          "text": "This  is   a   test."
+        }
+      ],
+      "output": [
+        {
+          "text": "This is a test."
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 3,
+      "name": "RemoveEmojiRefiner",
+      "type": "processor",
+      "description": "数据改写，删除表情符号",
+      "input": [
+        {
+          "text": "I love pizza 🍕😊"
+        }
+      ],
+      "output": [
+        {
+          "text": "I love pizza "
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 4,
+      "name": "HtmlUrlRemoverRefiner",
+      "type": "processor",
+      "description": "数据改写，删除 HTML 标签",
+      "input": [
+        {
+          "text": "<p>Hello <a href='url'>world</a></p>"
+        }
+      ],
+      "output": [
+        {
+          "text": "Hello world"
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 5,
+      "name": "MinHashDeduplicator",
+      "type": "processor",
+      "description": "MinHash 数据去重，删除部分数据",
+      "input": [
+        {
+          "text": "Duplicate sentence."
+        },
+        {
+          "text": "Duplicate sentence."
+        }
+      ],
+      "output": [
+        {
+          "text": "Duplicate sentence."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "num_perm",
+            "default": 128,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "threshold",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_n_gram",
+            "default": true,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "ngram",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_keys",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "minhash_deduplicated_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 6,
+      "name": "BlocklistFilter",
+      "type": "processor",
+      "description": "过滤屏蔽词（脏、粗俗、污秽词），删除部分数据",
+      "input": [
+        {
+          "text": "This is a clean sentence."
+        },
+        {
+          "text": "This is a shitty sentence."
+        }
+      ],
+      "output": [
+        {
+          "text": "This is a clean sentence."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "language",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "threshold",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "blocklist_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 7,
+      "name": "WordNumberFilter",
+      "type": "processor",
+      "description": "文本单词数量过滤",
+      "input": [
+        {
+          "text": "Too short"
+        },
+        {
+          "text": "This sentence has an acceptable number of words."
+        }
+      ],
+      "output": [
+        {
+          "text": "This sentence has an acceptable number of words."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_words",
+            "default": 20,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_words",
+            "default": 100000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "word_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 8,
+      "name": "ColonEndFilter",
+      "type": "processor",
+      "description": "过滤冒号结尾的文本",
+      "input": [
+        {
+          "text": "This ends with a colon:"
+        },
+        {
+          "text": "This is a complete sentence."
+        }
+      ],
+      "output": [
+        {
+          "text": "This is a complete sentence."
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 9,
+      "name": "SentenceNumberFilter",
+      "type": "processor",
+      "description": "语句数量过滤",
+      "input": [
+        {
+          "text": "One sentence only."
+        },
+        {
+          "text": "This is sentence one. This is sentence two."
+        }
+      ],
+      "output": [
+        {
+          "text": "This is sentence one. This is sentence two."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_sentences",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_sentences",
+            "default": 7500,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "sentence_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 10,
+      "name": "LineEndWithEllipsisFilter",
+      "type": "processor",
+      "description": "按照比例过滤以省略号结尾的文本",
+      "input": [
+        {
+          "text": "This is fine..."
+        },
+        {
+          "text": "Normal sentence."
+        }
+      ],
+      "output": [
+        {
+          "text": "Normal sentence."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_end_with_ellipsis_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 11,
+      "name": "ContentNullFilter",
+      "type": "processor",
+      "description": "空文本过滤",
+      "input": [
+        {
+          "text": ""
+        },
+        {
+          "text": "Non-empty."
+        }
+      ],
+      "output": [
+        {
+          "text": "Non-empty."
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "content_null_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 12,
+      "name": "MeanWordLengthFilter",
+      "type": "processor",
+      "description": "文本平均单词长度过滤",
+      "input": [
+        {
+          "text": "a b c d e"
+        },
+        {
+          "text": "This sentence has reasonable word lengths."
+        }
+      ],
+      "output": [
+        {
+          "text": "This sentence has reasonable word lengths."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_length",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 10,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "mean_word_length_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 13,
+      "name": "SymbolWordRatioFilter",
+      "type": "processor",
+      "description": "过滤符号/单词比例过大的文本",
+      "input": [
+        {
+          "text": "@@@### $$$ Hello"
+        },
+        {
+          "text": "Normal text."
+        }
+      ],
+      "output": [
+        {
+          "text": "Normal text."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.4,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "symbol_word_ratio_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 14,
+      "name": "HtmlEntityFilter",
+      "type": "processor",
+      "description": "过滤掉 HTML 实体或标签过多的文本",
+      "input": [
+        {
+          "text": "&nbsp;&nbsp;&lt;p&gt;Hello&lt;/p&gt;"
+        },
+        {
+          "text": "Clean text."
+        }
+      ],
+      "output": [
+        {
+          "text": "Clean text."
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "html_entity_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 15,
+      "name": "IDCardFilter",
+      "type": "processor",
+      "description": "过滤掉含 ID card 的文本",
+      "input": [
+        {
+          "text": "My ID card number is 1234567890."
+        },
+        {
+          "text": "No sensitive info here."
+        }
+      ],
+      "output": [
+        {
+          "text": "No sensitive info here."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "id_card_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 16,
+      "name": "NoPuncFilter",
+      "type": "processor",
+      "description": "过滤掉无标点符号的文本",
+      "input": [
+        {
+          "text": "This has punctuation."
+        },
+        {
+          "text": "This has no punctuation"
+        }
+      ],
+      "output": [
+        {
+          "text": "This has punctuation."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 112,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "no_punc_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 17,
+      "name": "SpecialCharacterFilter",
+      "type": "processor",
+      "description": "过滤掉特殊符号过多的文本",
+      "input": [
+        {
+          "text": "***@@@###$$$"
+        },
+        {
+          "text": "Normal text."
+        }
+      ],
+      "output": [
+        {
+          "text": "Normal text."
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "special_character_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 18,
+      "name": "WatermarkFilter",
+      "type": "processor",
+      "description": "过滤掉含水印的文本",
+      "input": [
+        {
+          "text": "© 2025 Company"
+        },
+        {
+          "text": "Regular text."
+        }
+      ],
+      "output": [
+        {
+          "text": "Regular text."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "watermarks",
+            "default": [
+              "Copyright",
+              "Watermark",
+              "Confidential"
+            ],
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "watermark_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 19,
+      "name": "CurlyBracketFilter",
+      "type": "processor",
+      "description": "过滤掉括号比例高的文本",
+      "input": [
+        {
+          "text": "{{{Hello}}}"
+        },
+        {
+          "text": "Hello world."
+        }
+      ],
+      "output": [
+        {
+          "text": "Hello world."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.025,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "curly_bracket_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 20,
+      "name": "CapitalWordsFilter",
+      "type": "processor",
+      "description": "过滤掉大写字母比例高的文本",
+      "input": [
+        {
+          "text": "THIS IS ALL CAPS."
+        },
+        {
+          "text": "Normal text."
+        }
+      ],
+      "output": [
+        {
+          "text": "Normal text."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.2,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "use_tokenizer",
+            "default": false,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "capital_words_filter",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 21,
+      "name": "LoremIpsumFilter",
+      "type": "processor",
+      "description": "过滤掉含 lorem ipsum 的文本",
+      "input": [
+        {
+          "text": "Lorem ipsum dolor sit amet."
+        },
+        {
+          "text": "Meaningful sentence."
+        }
+      ],
+      "output": [
+        {
+          "text": "Meaningful sentence."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3e-08,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "loremipsum_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 22,
+      "name": "UniqueWordsFilter",
+      "type": "processor",
+      "description": "过滤掉 unique 单词少的文本",
+      "input": [
+        {
+          "text": "repeat repeat repeat"
+        },
+        {
+          "text": "Each word is unique here."
+        }
+      ],
+      "output": [
+        {
+          "text": "Each word is unique here."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "unique_words_filter",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 23,
+      "name": "CharNumberFilter",
+      "type": "processor",
+      "description": "过滤掉字符较少的文本",
+      "input": [
+        {
+          "text": "Hi"
+        },
+        {
+          "text": "This is sufficiently long."
+        }
+      ],
+      "output": [
+        {
+          "text": "This is sufficiently long."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 100,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "char_number_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 24,
+      "name": "LineStartWithBulletpointFilter",
+      "type": "processor",
+      "description": "过滤掉以项目符号开头的文本",
+      "input": [
+        {
+          "text": "- Bullet point line"
+        },
+        {
+          "text": "Regular line."
+        }
+      ],
+      "output": [
+        {
+          "text": "Regular line."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 0.9,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_start_with_bullet_point_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 25,
+      "name": "LineWithJavascriptFilter",
+      "type": "processor",
+      "description": "过滤掉含 JavaScript 代码的文本",
+      "input": [
+        {
+          "text": "<script>console.log('Hi');</script>"
+        },
+        {
+          "text": "Just plain English."
+        }
+      ],
+      "output": [
+        {
+          "text": "Just plain English."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "threshold",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "line_with_javascript_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 26,
+      "name": "PairQualFilter",
+      "type": "processor",
+      "description": "使用算创文本质量打分器过滤数据",
+      "input": [
+        {
+          "text": "Low quality text."
+        },
+        {
+          "text": "High quality text."
+        }
+      ],
+      "output": [
+        {
+          "text": "High quality text."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 10000,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "lang",
+            "default": "en",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "pair_qual_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 27,
+      "name": "PretrainGenerator",
+      "type": "generator",
+      "description": "根据预训练数据合成类 phi-4 预训练数据，一个输入数据可生成多个输出",
+      "input": [
+        {
+          "source": "原文内容",
+          "pretrain_data": "…"
+        }
+      ],
+      "output": [
+        {
+          "generated_content": "生成内容 A",
+          "source": "原文内容"
+        },
+        {
+          "generated_content": "生成内容 B",
+          "source": "原文内容"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "raw_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "generated_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 28,
+      "name": "QuratingFilter",
+      "type": "processor",
+      "description": "从 Writing Style、Facts & Trivia、Educational Value、Required Expertise 四个维度按照质量分数过滤数据，删除部分数据",
+      "input": [
+        {
+          "text": "Low quality pretrain data"
+        },
+        {
+          "text": "High quality pretrain data"
+        }
+      ],
+      "output": [
+        {
+          "text": "High quality pretrain data"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_scores",
+            "default": {
+              "writing_style": 0,
+              "required_expertise": 0,
+              "facts_and_trivia": 0,
+              "educational_value": 0
+            },
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_scores",
+            "default": {
+              "writing_style": 9,
+              "required_expertise": 9,
+              "facts_and_trivia": 9,
+              "educational_value": 9
+            },
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "map_batch_size",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "num_workers",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device_batch_size",
+            "default": 16,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "labels",
+            "default": [
+              "writing_style",
+              "required_expertise",
+              "facts_and_trivia",
+              "educational_value"
+            ],
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 29,
+      "name": "SupervisedFinetuneGenerator",
+      "type": "generator",
+      "description": "根据预训练文档种子数据合成 SFT 数据，每个输入合成 3 个问题",
+      "input": [
+        {
+          "instruction": "Seed instruction",
+          "output": "Seed output"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "Seed instruction #1",
+          "output": "Generated answer #1"
+        },
+        {
+          "instruction": "Seed instruction #2",
+          "output": "Generated answer #2"
+        },
+        {
+          "instruction": "Seed instruction #3",
+          "output": "Generated answer #3"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "raw_content",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 30,
+      "name": "SuperfilteringFilter",
+      "type": "processor",
+      "description": "按照质量 IFD 分数过滤 SFT 数据，删除部分数据",
+      "input": [
+        {
+          "instruction": "Low quality",
+          "output": "…"
+        },
+        {
+          "instruction": "High quality",
+          "output": "…"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "High quality",
+          "output": "…"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_input_key",
+            "default": "input",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "superfiltering_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 31,
+      "name": "DeitaQualityFilter",
+      "type": "processor",
+      "description": "按照指令质量得分过滤 SFT 数据",
+      "input": [
+        {
+          "instruction": "Low quality",
+          "output": "…"
+        },
+        {
+          "instruction": "High quality",
+          "output": "…"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "High quality",
+          "output": "…"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 2.5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 10000.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_length",
+            "default": 512,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_output_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "deita_quality_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 32,
+      "name": "InstagFilter",
+      "type": "processor",
+      "description": "按照 instruction 标签数过滤 SFT 数据",
+      "input": [
+        {
+          "instruction": [
+            "one"
+          ]
+        },
+        {
+          "instruction": [
+            "one",
+            "two",
+            "three"
+          ]
+        }
+      ],
+      "output": [
+        {
+          "instruction": [
+            "one",
+            "two",
+            "three"
+          ]
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "model_cache_dir",
+            "default": "./dataflow_cache",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "device",
+            "default": "cuda",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_new_tokens",
+            "default": 1024,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_instruction_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "instag_filter_label",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    }
+  ],
+  "CODE": [
+    {
+      "node": 1,
+      "name": "LanguageClassifier",
+      "type": "generator",
+      "description": "识别代码数据的语言，加入新 key: lang",
+      "input": [
+        {
+          "code": "print('Hello')"
+        },
+        {
+          "code": "console.log('Hi')"
+        }
+      ],
+      "output": [
+        {
+          "code": "print('Hello')",
+          "lang": "python"
+        },
+        {
+          "code": "console.log('Hi')",
+          "lang": "javascript"
+        }
+      ],
+      "command": "python CodePipeline/code/classify.py --yaml_path CodePipeline/yaml/classifier.yaml",
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 2,
+      "name": "StaticCodeChecker",
+      "type": "generator",
+      "description": "对代码进行静态类型检查，加入新 key: check_result, detail",
+      "input": [
+        {
+          "code": "a: int = 'string'"
+        }
+      ],
+      "output": [
+        {
+          "code": "a: int = 'string'",
+          "check_result": "error",
+          "detail": "Type mismatch"
+        }
+      ],
+      "command": "python CodePipeline/code/static_check.py --yaml_path CodePipeline/yaml/static_check.yaml",
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 3,
+      "name": "TreeSitterParser",
+      "type": "generator",
+      "description": "对代码进行 AST 级别检查，加入新 key: ast_error, ast_error_info",
+      "input": [
+        {
+          "code": "def foo(): pass"
+        }
+      ],
+      "output": [
+        {
+          "code": "def foo(): pass",
+          "ast_error": false,
+          "ast_error_info": ""
+        }
+      ],
+      "command": "python CodePipeline/code/ast_checker.py --yaml_path CodePipeline/yaml/tree_sitter.yaml",
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 4,
+      "name": "CodeFilter",
+      "type": "generator",
+      "description": "根据 StaticCodeChecker 和 TreeSitterParser 的结果进行过滤，删除部分数据",
+      "input": [
+        {
+          "code": "a: int = 'string'",
+          "check_result": "error",
+          "detail": "Type mismatch",
+          "ast_error": false,
+          "ast_error_info": ""
+        },
+        {
+          "code": "def foo(): pass",
+          "check_result": "ok",
+          "detail": "",
+          "ast_error": false,
+          "ast_error_info": ""
+        }
+      ],
+      "output": [
+        {
+          "code": "def foo(): pass",
+          "check_result": "ok",
+          "detail": "",
+          "ast_error": false,
+          "ast_error_info": ""
+        }
+      ],
+      "command": "python CodePipeline/code/code_filter.py --yaml_path CodePipeline/yaml/filter_static.yaml && python CodePipeline/code/code_filter.py --yaml_path CodePipeline/yaml/filter_ast.yaml",
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 5,
+      "name": "CodeCommentGenerator",
+      "type": "generator",
+      "description": "给代码添加注释，加入新 key: commented_content",
+      "input": [
+        {
+          "code": "def add(a, b): return a + b"
+        }
+      ],
+      "output": [
+        {
+          "code": "def add(a, b): return a + b",
+          "commented_content": "# Adds two numbers\ndef add(a, b): return a + b"
+        }
+      ],
+      "command": "python CodePipeline/code/code_comment.py --yaml_path CodePipeline/yaml/code_comment.yaml",
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 6,
+      "name": "CodeRefiner",
+      "type": "generator",
+      "description": "对代码的变量命名、可读性等进行优化，加入新 key: varname_content",
+      "input": [
+        {
+          "code": "def foo(x): return x*2"
+        }
+      ],
+      "output": [
+        {
+          "code": "def foo(x): return x*2",
+          "varname_content": "def double(x): return x * 2"
+        }
+      ],
+      "command": "python CodePipeline/code/code_variname.py --yaml_path CodePipeline/yaml/var_name.yaml",
+      "required": false,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 7,
+      "name": "ExtractLines",
+      "type": "generator",
+      "description": "提取代码片段，加入新 key: code",
+      "input": [
+        {
+          "content": "Here is some text.\n```python\ndef foo(): pass\n```\nEnd."
+        }
+      ],
+      "output": [
+        {
+          "content": "Here is some text.\n```python\ndef foo(): pass\n```\nEnd.",
+          "code": "def foo(): pass"
+        }
+      ],
+      "command": "python CodePipeline/code/extract_lines.py --yaml_path CodePipeline/yaml/extract_lines.yaml",
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 8,
+      "name": "OSSInstGenerator",
+      "type": "generator",
+      "description": "进行代码 QA 数据合成，加入新 key: oss_inst",
+      "input": [
+        {
+          "code": "def foo(): pass"
+        }
+      ],
+      "output": [
+        {
+          "code": "def foo(): pass",
+          "oss_inst": "Describe what foo does and how it can be used"
+        }
+      ],
+      "command": "python CodePipeline/code/oss-inst.py --yaml_path CodePipeline/yaml/oss-inst.yaml",
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 9,
+      "name": "CodeScorer",
+      "type": "generator",
+      "description": "对代码 QA 数据进行打分，加入新 key: scores",
+      "input": [
+        {
+          "code": "def foo(): pass",
+          "question": "What does foo do?"
+        }
+      ],
+      "output": [
+        {
+          "code": "def foo(): pass",
+          "question": "What does foo do?",
+          "scores": {
+            "correctness": 1.0,
+            "clarity": 0.8
+          }
+        }
+      ],
+      "command": "python CodePipeline/code/code_scores.py --yaml_path CodePipeline/yaml/code_scores.yaml",
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    }
+  ],
+  "MATH&SCIENCE": [
+    {
+      "node": 1,
+      "name": "QuestionGenerator",
+      "type": "generator",
+      "description": "基于现有的问题数据，每个问题合成1-5个新问题",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2."
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input"
+        },
+        {
+          "instruction": "2+5=?",
+          "output": null,
+          "Synth_or_Input": "synth"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "num_prompts",
+            "default": 1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 2,
+      "name": "QuestionFilter",
+      "type": "filter",
+      "description": "检查每个问题的正确性",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input"
+        },
+        {
+          "instruction": "2+5=10",
+          "output": null,
+          "Synth_or_Input": "synth"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "system_prompt",
+            "default": "You are a helpful assistant.",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "math_problem",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 3,
+      "name": "QuestionDifficultyClassifier",
+      "type": "generator",
+      "description": "为每个问题确定一个难度分数标签",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input",
+          "question_difficulty": 1.0
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "difficulty_score",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 4,
+      "name": "QuestionCategoryClassifier",
+      "type": "generator",
+      "description": "将所有问题分类到7个大类别，以及每个大类别下的若干的小类别",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2.",
+          "Synth_or_Input": "input",
+          "primary_category": "xxxx",
+          "secondary_category": "yyyy"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key",
+            "default": "question_category",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 5,
+      "name": "AnswerPipelineRoot",
+      "type": "generator",
+      "description": "用于检查数据是否包含Answer、groundtruth，并分离有答案和没答案的数据，方便后续分别处理",
+      "input": [
+        {
+          "input_answer_key": "This is a test answer 1",
+          "input_gt_key": "1"
+        },
+        {
+          "input_answer_key": "This is a test answer 2",
+          "input_gt_key": "2"
+        },
+        {
+          "input_answer_key": "This is a test answer 3",
+          "input_gt_key": null
+        },
+        {
+          "input_answer_key": null,
+          "input_gt_key": "4"
+        },
+        {
+          "input_answer_key": null,
+          "input_gt_key": null
+        }
+      ],
+      "output": {
+        "with_answer": [
+          {
+            "input_answer_key": "This is a test answer 1",
+            "input_gt_key": 1.0
+          },
+          {
+            "input_answer_key": "This is a test answer 2",
+            "input_gt_key": 2.0
+          },
+          {
+            "input_answer_key": null,
+            "input_gt_key": 4.0
+          }
+        ],
+        "without_answer": [
+          {
+            "input_answer_key": "This is a test answer 3",
+            "input_gt_key": null
+          },
+          {
+            "input_answer_key": null,
+            "input_gt_key": null
+          }
+        ]
+      },
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_answer_key",
+            "default": "output",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_gt_key",
+            "default": "golden_answer",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 6,
+      "name": "PseudoAnswerGenerator",
+      "type": "generator",
+      "description": "该算子能够生成多个候选答案，并通过统计方法选择最优解，从而实现伪答案的生成。其输入参数包括：输入文件路径（input_file）、输出文件路径（output_file）、最大生成次数（max_times）以及统计选择模式（selection_mode，可选frequency或consistency）。输出参数包括：最终选择的答案字段（final_answer）和候选答案列表字段（candidate_answers）。该算子能够生成多个候选答案，并通过统计方法选择最优解，从而实现伪答案的生成。其输入参数包括：输入文件路径（input_file）、输出文件路径（output_file）、最大生成次数（max_times）以及统计选择模式（selection_mode，可选frequency或consistency）。输出参数包括：最终选择的答案字段（final_answer）和候选答案列表字段（candidate_answers）。",
+      "input": [
+        {
+          "source": null,
+          "instruction": "Jenny is designing a game where players roll two standard six-sided dice and assign the numbers rolled to different categories for points. However, she wants to incentivize rolling numbers that form a ratio close to 3:2 when arranged in either order. If each player rolls two dice, what is the probability that the pair of numbers rolled can form a ratio that simplifies to exactly 3:2 in either order? Express your answer as a common fraction.",
+          "output": null,
+          "Synth_or_Input": "synth",
+          "question_difficulty": 1.0,
+          "primary_category": "5. Probability, Statistics, and Discrete Mathematics",
+          "secondary_category": "5.1 Probability Theory and Stochastic Processes"
+        }
+      ],
+      "output": [
+        {
+          "source": null,
+          "instruction": "Jenny is designing a game where players roll two standard six-sided dice and assign the numbers rolled to different categories for points. However, she wants to incentivize rolling numbers that form a ratio close to 3:2 when arranged in either order. If each player rolls two dice, what is the probability that the pair of numbers rolled can form a ratio that simplifies to exactly 3:2 in either order? Express your answer as a common fraction.",
+          "output": null,
+          "Synth_or_Input": "synth",
+          "question_difficulty": 1.0,
+          "primary_category": "5. Probability, Statistics, and Discrete Mathematics",
+          "secondary_category": "5.1 Probability Theory and Stochastic Processes",
+          "pseudo_answers": [
+            "\\frac{2}{9}",
+            "\\frac{2}{9}",
+            "9"
+          ],
+          "pseudo_solutions": [
+            "solution 1",
+            "solution2",
+            "solution3"
+          ],
+          "pseudo_correct_solution_example": "solution2",
+          "pseudo_answer_value": "\\frac{2}{9}"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "llm_serving",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_times",
+            "default": 3,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_answer",
+            "default": "pseudo_answers",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_answer_value",
+            "default": "pseudo_answer_value",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_solutions",
+            "default": "pseudo_solutions",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "output_key_correct_solution_example",
+            "default": "pseudo_correct_solution_example",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": "GPU"
+    },
+    {
+      "node": 7,
+      "name": "AnswerFormatterFilter",
+      "type": "processor",
+      "description": "按照给定的格式，基于规则过滤掉不符合格式要求的数据",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2."
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        }
+      ],
+      "command": {
+        "init": [],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 8,
+      "name": "AnswerTokenLengthFilter",
+      "type": "processor",
+      "description": "过滤掉Answer长度不合适的数据",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}!!!!!!!!!!!!!!!!!!...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "max_answer_token_length",
+            "default": 8192,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "tokenizer_dir",
+            "default": "Qwen/Qwen2.5-0.5B-Instruct",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "input_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    },
+    {
+      "node": 9,
+      "name": "AnswerNgramFilter",
+      "type": "processor",
+      "description": "对Q和A一起构成的字符串进行 n-gram 去重",
+      "input": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2."
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2."
+        }
+      ],
+      "output": [
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2,so final anwer is /boxed{2}"
+        },
+        {
+          "instruction": "1+1=?",
+          "output": "1+1=2."
+        }
+      ],
+      "command": {
+        "init": [
+          {
+            "name": "min_score",
+            "default": 0.1,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "max_score",
+            "default": 1.0,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "ngrams",
+            "default": 5,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ],
+        "run": [
+          {
+            "name": "storage",
+            "default": null,
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "question_key",
+            "default": "instruction",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          },
+          {
+            "name": "answer_key",
+            "default": "generated_cot",
+            "kind": "POSITIONAL_OR_KEYWORD"
+          }
+        ]
+      },
+      "required": true,
+      "depends_on": [],
+      "mode": ""
+    }
+  ]
+}
