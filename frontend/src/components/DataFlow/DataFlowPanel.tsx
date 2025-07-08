@@ -333,7 +333,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
       toast.success('正在准备下载包，请稍候...'); // 给用户反馈
       
       // 使用统一的下载API
-      const downloadUrl = `${config.apiBaseUrl}unified/tasks/${taskId}/download-zip`;
+      const downloadUrl = `${config.apiBaseUrl}/unified/tasks/${taskId}/download-zip`;
       
       console.log('统一打包下载URL:', downloadUrl); // 调试日志
       
