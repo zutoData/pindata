@@ -1013,6 +1013,70 @@ ${formatDetails.example}
 - 每个文档片段生成6-9个知识蒸馏样例，进行全面覆盖`;
             }
             break;
+
+          case 'pretraining-data-cleaning':
+            if (isEnglish) {
+              basePrompt += `\n\n## Pretraining Data Cleaning Guide
+### Text Cleaning Principles
+- **Remove Noise**: Remove meaningless characters, excessive spaces, and formatting artifacts
+- **Preserve Meaning**: Keep all valuable text content while removing only non-essential elements
+- **Maintain Structure**: Preserve logical paragraph structure and natural flow
+- **Language Quality**: Ensure output text is natural and readable
+
+### Cleaning Tasks
+- **Format Cleanup**: Remove markdown syntax, HTML tags, and excessive whitespace
+- **Character Normalization**: Fix encoding issues and normalize punctuation
+- **Content Filtering**: Remove boilerplate text, navigation elements, and redundant headers
+- **Quality Enhancement**: Improve sentence structure and readability
+
+### Output Requirements - SIMPLE AND EFFECTIVE
+- Generate clean, high-quality text segments suitable for pretraining
+- Each segment should be 200-1000 characters long
+- Remove all markdown formatting and keep only clean text
+- Ensure good readability and natural language flow
+- Focus on content quality over complexity`;
+            } else if (isJapanese) {
+              basePrompt += `\n\n## 事前学習データクリーニングガイド
+### テキストクリーニング原則
+- **ノイズ除去**：意味のない文字、過剰な空白、フォーマットアーティファクトを除去
+- **意味保持**：重要でない要素のみを除去し、価値あるテキスト内容をすべて保持
+- **構造維持**：論理的段落構造と自然な流れを保持
+- **言語品質**：出力テキストが自然で読みやすいことを確保
+
+### クリーニングタスク
+- **フォーマット整理**：markdown構文、HTMLタグ、過剰な空白を除去
+- **文字正規化**：エンコーディング問題を修正し、句読点を正規化
+- **内容フィルタリング**：定型文、ナビゲーション要素、冗長ヘッダーを除去
+- **品質向上**：文構造と読みやすさを改善
+
+### 出力要件 - シンプルで効果的
+- 事前学習に適したクリーンで高品質なテキストセグメントを生成
+- 各セグメントは200-1000文字の長さにする
+- すべてのmarkdownフォーマットを除去し、クリーンなテキストのみを保持
+- 良好な読みやすさと自然言語の流れを確保
+- 複雑さよりも内容品質に焦点を当てる`;
+            } else {
+              basePrompt += `\n\n## 预训练数据清洗指南
+### 文本清洗原则
+- **去除噪声**：清除无意义的字符、多余的空格和格式化产物
+- **保持语义**：保留所有有价值的文本内容，只删除非必要元素
+- **维护结构**：保持逻辑段落结构和自然流畅性
+- **语言质量**：确保输出文本自然可读
+
+### 清洗任务
+- **格式清理**：去除markdown语法、HTML标签和多余空白
+- **字符规范化**：修复编码问题，规范标点符号
+- **内容过滤**：去除模板文本、导航元素和冗余标题
+- **质量提升**：改善句子结构和可读性
+
+### 输出要求 - 简单高效
+- 生成适合预训练的清洁高质量文本片段
+- 每个片段长度为200-1000字符
+- 去除所有markdown格式，只保留干净的文本
+- 确保良好的可读性和自然语言流畅度
+- 专注于内容质量而非复杂性`;
+            }
+            break;
         }
 
         // 添加输入文件信息

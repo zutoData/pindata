@@ -42,7 +42,7 @@ export interface DatasetType {
   icon: string;
   formats: string[];
   multimodal: boolean;
-  category: 'supervised' | 'reasoning' | 'distillation';
+  category: 'supervised' | 'reasoning' | 'distillation' | 'pretraining';
   useCase: string;
   example: string;
 }

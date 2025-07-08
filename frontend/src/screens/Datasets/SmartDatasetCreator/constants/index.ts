@@ -78,6 +78,17 @@ export const DATASET_TYPES: DatasetType[] = [
     category: 'distillation',
     useCase: 'Model Compression, Knowledge Transfer',
     example: 'Teacher-student learning examples'
+  },
+  {
+    id: 'pretraining-data-cleaning',
+    name: 'Pretraining Data Cleaning',
+    description: 'Clean and optimize raw text data for pretraining models',
+    icon: '🧹',
+    formats: ['Text', 'JSONL'],
+    multimodal: false,
+    category: 'pretraining',
+    useCase: 'Language Model Pretraining, Data Cleaning',
+    example: 'Cleaned high-quality text data'
   }
 ];
 
@@ -159,6 +170,17 @@ export const getDatasetTypes = (t: (key: string) => string): DatasetType[] => [
     category: 'distillation',
     useCase: t('smartDatasetCreator.constants.datasetTypes.knowledgeDistillation.useCase'),
     example: t('smartDatasetCreator.constants.datasetTypes.knowledgeDistillation.example')
+  },
+  {
+    id: 'pretraining-data-cleaning',
+    name: t('smartDatasetCreator.constants.datasetTypes.pretrainingDataCleaning.name'),
+    description: t('smartDatasetCreator.constants.datasetTypes.pretrainingDataCleaning.description'),
+    icon: '🧹',
+    formats: ['Text', 'JSONL'],
+    multimodal: false,
+    category: 'pretraining',
+    useCase: t('smartDatasetCreator.constants.datasetTypes.pretrainingDataCleaning.useCase'),
+    example: t('smartDatasetCreator.constants.datasetTypes.pretrainingDataCleaning.example')
   }
 ];
 

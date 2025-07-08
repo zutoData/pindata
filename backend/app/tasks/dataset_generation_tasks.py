@@ -329,6 +329,9 @@ def _process_single_file(
         elif dataset_type == 'text-classification':
             # 生成分类数据
             generated_data = _generate_classification_data(file_content, model_config, processing_config)
+        elif dataset_type == 'pretraining-data-cleaning':
+            # 生成预训练数据清洗
+            generated_data = _generate_pretraining_cleaning_data(file_content, model_config, processing_config)
         else:
             # 默认生成通用文本数据
             generated_data = _generate_generic_data(file_content, model_config, processing_config)
@@ -970,6 +973,218 @@ def _generate_generic_data(content: str, model_config: Dict, processing_config: 
     except Exception as e:
         logger.error(f"生成通用数据失败: {str(e)}")
         raise
+
+def _generate_pretraining_cleaning_data(content: str, model_config: Dict, processing_config: Dict) -> List[Dict]:
+    """生成预训练数据清洗"""
+    try:
+        llm_config_id = model_config.get('id')
+        llm_config = LLMConfig.query.get(llm_config_id)
+        
+        # 分块处理长文本
+        chunk_size = processing_config.get('chunk_size', 2000)
+        chunk_overlap = processing_config.get('chunk_overlap', 200)
+        chunks = _split_content_into_chunks_with_overlap(content, chunk_size, chunk_overlap)
+        logger.info(f"将内容分为 {len(chunks)} 块进行预训练数据清洗，块大小: {chunk_size}, 重叠: {chunk_overlap}")
+        
+        cleaned_data = []
+        successful_chunks = 0
+        failed_chunks = 0
+        
+        for i, chunk in enumerate(chunks):
+            logger.info(f"清洗块 {i+1}/{len(chunks)}")
+            
+            try:
+                if llm_config:
+                    # 使用自定义提示词或简单的清洗提示词
+                    custom_prompt = processing_config.get('custom_prompt', '')
+                    if custom_prompt:
+                        prompt = _build_custom_prompt_for_chunk(chunk, custom_prompt, processing_config)
+                    else:
+                        # 使用简单高效的清洗提示词
+                        prompt = _build_pretraining_cleaning_prompt(chunk, processing_config)
+                    
+                    # 调用LLM进行清洗
+                    response = llm_conversion_service.call_llm(llm_config, prompt)
+                    
+                    # 解析清洗结果
+                    cleaned_segments = _parse_pretraining_cleaning_response(response, i)
+                    if cleaned_segments:
+                        cleaned_data.extend(cleaned_segments)
+                        successful_chunks += 1
+                    else:
+                        # 如果LLM清洗失败，回退到基础清洗
+                        basic_cleaned = _basic_text_cleaning(chunk, i)
+                        cleaned_data.extend(basic_cleaned)
+                        failed_chunks += 1
+                        logger.warning(f"LLM清洗块{i+1}失败，使用基础清洗")
+                else:
+                    # 如果没有LLM配置，使用基础清洗
+                    basic_cleaned = _basic_text_cleaning(chunk, i)
+                    cleaned_data.extend(basic_cleaned)
+                    successful_chunks += 1
+                
+            except Exception as e:
+                failed_chunks += 1
+                logger.warning(f"清洗块{i+1}失败: {str(e)}")
+                # 回退到基础清洗
+                try:
+                    basic_cleaned = _basic_text_cleaning(chunk, i)
+                    cleaned_data.extend(basic_cleaned)
+                except:
+                    # 如果基础清洗也失败，保留原文本但做最小处理
+                    if chunk.strip():
+                        cleaned_data.append({
+                            'id': i + 1,
+                            'text': chunk.strip(),
+                            'source': 'fallback',
+                            'type': 'raw_text'
+                        })
+        
+        # 计算成功率
+        total_chunks = len(chunks)
+        success_rate = (successful_chunks / total_chunks) * 100 if total_chunks > 0 else 0
+        
+        logger.info(f"预训练数据清洗统计: 总数={total_chunks}, 成功={successful_chunks}, 失败={failed_chunks}, 成功率={success_rate:.1f}%")
+        
+        # 预训练数据清洗的成功率要求相对宽松
+        if not cleaned_data or len(cleaned_data) == 0:
+            raise Exception("未生成任何清洗数据，请检查内容或配置")
+        
+        return cleaned_data
+        
+    except Exception as e:
+        logger.error(f"生成预训练清洗数据失败: {str(e)}")
+        raise
+
+def _build_pretraining_cleaning_prompt(chunk: str, config: Dict) -> str:
+    """构建预训练数据清洗提示词 - 简单高效"""
+    prompt = f"""请清洗以下文本，使其适合用于语言模型预训练。要求：
+
+1. 去除所有markdown格式（#标题、**粗体**、*斜体*、```代码块```等）
+2. 去除多余的空格和空行
+3. 保留所有有价值的文本内容
+4. 确保句子完整和流畅
+5. 输出纯净的文本，每段之间用一个空行分隔
+
+原文本：
+{chunk}
+
+请直接输出清洗后的文本，不要添加任何说明："""
+    
+    return prompt
+
+def _parse_pretraining_cleaning_response(response: str, chunk_index: int) -> List[Dict]:
+    """解析预训练数据清洗响应"""
+    try:
+        if not response or not response.strip():
+            return []
+        
+        # 清理响应文本
+        cleaned_text = response.strip()
+        
+        # 如果响应包含解释性文字，尝试提取纯文本
+        if "清洗后的文本" in cleaned_text or "输出" in cleaned_text:
+            lines = cleaned_text.split('\n')
+            text_lines = []
+            start_collecting = False
+            
+            for line in lines:
+                if any(keyword in line for keyword in ["清洗后", "输出", "结果"]) and ":" in line:
+                    start_collecting = True
+                    # 如果这行冒号后面有内容，也要包含
+                    if line.split(':', 1)[1].strip():
+                        text_lines.append(line.split(':', 1)[1].strip())
+                elif start_collecting:
+                    text_lines.append(line)
+            
+            if text_lines:
+                cleaned_text = '\n'.join(text_lines).strip()
+        
+        # 分割成段落
+        paragraphs = [p.strip() for p in cleaned_text.split('\n\n') if p.strip()]
+        
+        if not paragraphs:
+            # 如果没有双换行分割，尝试单换行
+            paragraphs = [p.strip() for p in cleaned_text.split('\n') if p.strip() and len(p.strip()) > 20]
+        
+        if not paragraphs:
+            # 如果还是没有，整体作为一个段落
+            if len(cleaned_text) > 50:
+                paragraphs = [cleaned_text]
+        
+        # 转换为标准格式
+        result = []
+        for i, paragraph in enumerate(paragraphs):
+            if len(paragraph) >= 20:  # 只保留足够长的段落
+                result.append({
+                    'id': f"{chunk_index + 1}_{i + 1}",
+                    'text': paragraph,
+                    'source': 'llm_cleaned',
+                    'type': 'cleaned_text',
+                    'length': len(paragraph)
+                })
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"解析预训练清洗响应失败: {str(e)}")
+        return []
+
+def _basic_text_cleaning(chunk: str, chunk_index: int) -> List[Dict]:
+    """基础文本清洗（不使用LLM）"""
+    try:
+        import re
+        
+        text = chunk.strip()
+        
+        # 基础清洗规则
+        # 1. 去除markdown标题
+        text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+        
+        # 2. 去除markdown粗体和斜体
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        
+        # 3. 去除markdown代码块
+        text = re.sub(r'```[^`]*```', '', text, flags=re.DOTALL)
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+        
+        # 4. 去除markdown链接
+        text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+        
+        # 5. 去除多余空格和空行
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        
+        # 6. 去除行首行尾空格
+        lines = [line.strip() for line in text.split('\n')]
+        text = '\n'.join(line for line in lines if line)
+        
+        # 分割成段落
+        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip() and len(p.strip()) > 30]
+        
+        if not paragraphs:
+            # 如果没有双换行，整体作为一个段落
+            if len(text) > 50:
+                paragraphs = [text]
+        
+        # 转换为标准格式
+        result = []
+        for i, paragraph in enumerate(paragraphs):
+            if len(paragraph) >= 30:  # 基础清洗要求稍高的最小长度
+                result.append({
+                    'id': f"{chunk_index + 1}_{i + 1}",
+                    'text': paragraph,
+                    'source': 'basic_cleaned',
+                    'type': 'cleaned_text',
+                    'length': len(paragraph)
+                })
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"基础文本清洗失败: {str(e)}")
+        return []
 
 def _parse_generic_response(response: str) -> List[Dict]:
     """解析通用响应"""
@@ -1696,6 +1911,14 @@ def _convert_to_alpaca_format(item: Dict, dataset_type: str) -> Dict:
         if 'thinking' in item and item['thinking']:
             result['thinking'] = item['thinking']
         return result
+    elif dataset_type == 'pretraining-data-cleaning':
+        # 预训练数据清洗输出简单文本格式
+        return {
+            'text': item.get('text', ''),
+            'id': item.get('id', ''),
+            'source': item.get('source', 'cleaned'),
+            'length': item.get('length', len(item.get('text', '')))
+        }
     else:
         return item
 
@@ -1730,6 +1953,14 @@ def _convert_to_sharegpt_format(item: Dict, dataset_type: str) -> Dict:
         if 'thinking' in item and item['thinking']:
             conversations.insert(1, {'role': 'assistant', 'content': f"<thinking>\n{item['thinking']}\n</thinking>"})
         return {'conversations': conversations}
+    elif dataset_type == 'pretraining-data-cleaning':
+        # 预训练数据清洗输出简单文本格式（不适合对话格式，返回原格式）
+        return {
+            'text': item.get('text', ''),
+            'id': item.get('id', ''),
+            'source': item.get('source', 'cleaned'),
+            'length': item.get('length', len(item.get('text', '')))
+        }
     else:
         return item
 
@@ -1764,6 +1995,14 @@ def _convert_to_openai_format(item: Dict, dataset_type: str) -> Dict:
         if 'thinking' in item and item['thinking']:
             messages.insert(1, {'role': 'assistant', 'content': f"<thinking>\n{item['thinking']}\n</thinking>"})
         return {'messages': messages}
+    elif dataset_type == 'pretraining-data-cleaning':
+        # 预训练数据清洗输出简单文本格式（不适合消息格式，返回原格式）
+        return {
+            'text': item.get('text', ''),
+            'id': item.get('id', ''),
+            'source': item.get('source', 'cleaned'),
+            'length': item.get('length', len(item.get('text', '')))
+        }
     else:
         return item
 
@@ -1794,6 +2033,14 @@ def _convert_to_csv_format(item: Dict, dataset_type: str) -> Dict:
         if 'thinking' in item and item['thinking']:
             result['thinking'] = item['thinking']
         return result
+    elif dataset_type == 'pretraining-data-cleaning':
+        # 预训练数据清洗的CSV格式
+        return {
+            'id': item.get('id', ''),
+            'text': item.get('text', ''),
+            'source': item.get('source', 'cleaned'),
+            'length': item.get('length', len(item.get('text', '')))
+        }
     else:
         return item
 

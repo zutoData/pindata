@@ -43,14 +43,21 @@
       },
       "reasoning": {
         "name": "Reasoning Tuning",
-        "description": "Reasoning data with chain of thought to train model logical reasoning abilities",
-        "useCase": "Math problem solving, code generation, logical reasoning, complex analysis",
+        "description": "Reasoning data with chain-of-thought, trains logical reasoning abilities",
+        "useCase": "Mathematical problem solving, code generation, logical reasoning, complex analysis",
         "category": "reasoning"
+      },
+      "pretrainingDataCleaning": {
+        "name": "Pretraining Data Cleaning",
+        "description": "Clean and optimize raw text data for pretraining models",
+        "useCase": "Language model pretraining, data cleaning, text optimization",
+        "category": "pretraining",
+        "example": "Cleaned high-quality text data"
       },
       "knowledgeDistillation": {
         "name": "Knowledge Distillation",
-        "description": "Extract knowledge from large models to train smaller models, balancing performance and cost",
-        "useCase": "Model compression, edge deployment, cost optimization",
+        "description": "Knowledge transfer data for model compression and distillation",
+        "useCase": "Model compression, knowledge transfer, student model training",
         "category": "distillation"
       }
     },

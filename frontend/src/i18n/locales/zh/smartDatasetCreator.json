@@ -39,6 +39,12 @@
         "useCase": "数学问题解决、代码生成、逻辑推理、复杂分析",
         "example": "逐步推理过程"
       },
+      "pretrainingDataCleaning": {
+        "name": "预训练数据清洗",
+        "description": "清洗和优化原始文本数据，用于预训练模型",
+        "useCase": "语言模型预训练、数据清洗、文本优化",
+        "example": "清洗后的高质量文本数据"
+      },
       "knowledgeDistillation": {
         "name": "知识蒸馏",
         "description": "从大模型提取知识训练小模型，平衡性能与成本",
