@@ -1,13 +1,14 @@
 from flask import jsonify, request, Blueprint
 from flasgger import swag_from
 from app.api.v1 import api_v1
-from app.models import Task, TaskStatus, ConversionJob, ConversionStatus
+from app.models import Task, TaskStatus, ConversionJob, ConversionStatus, TaskType
 from app.db import db
 from app.utils.response import success_response, error_response
 import logging
 from flask_restful import Api, Resource
 from celery.result import AsyncResult
 from app.celery_app import celery
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -190,14 +191,14 @@ def get_tasks():
         logger.error(f"获取任务列表失败: {str(e)}")
         return error_response('服务器内部错误111'+str(e)), 500
 
-@api_v1.route('/tasks/<int:task_id>', methods=['GET'])
+@api_v1.route('/tasks/<string:task_id>', methods=['GET'])
 @swag_from({
     'tags': ['任务'],
     'summary': '获取任务详情',
     'parameters': [{
         'name': 'task_id',
         'in': 'path',
-        'type': 'integer',
+        'type': 'string',
         'required': True
     }],
     'responses': {
@@ -242,14 +243,14 @@ def get_task(task_id):
         logger.error(f"获取任务详情失败: {str(e)}")
         return error_response('服务器内部错误222'), 500
 
-@api_v1.route('/tasks/<int:task_id>', methods=['DELETE'])
+@api_v1.route('/tasks/<string:task_id>', methods=['DELETE'])
 @swag_from({
     'tags': ['任务'],
     'summary': '删除任务',
     'parameters': [{
         'name': 'task_id',
         'in': 'path',
-        'type': 'integer',
+        'type': 'string',
         'required': True
     }],
     'responses': {
@@ -297,14 +298,14 @@ def delete_task(task_id):
         db.session.rollback()
         return error_response('服务器内部错误333'), 500
 
-@api_v1.route('/tasks/<int:task_id>/cancel', methods=['POST'])
+@api_v1.route('/tasks/<string:task_id>/cancel', methods=['POST'])
 @swag_from({
     'tags': ['任务'],
     'summary': '取消任务',
     'parameters': [{
         'name': 'task_id',
         'in': 'path',
-        'type': 'integer',
+        'type': 'string',
         'required': True
     }],
     'responses': {
@@ -328,30 +329,34 @@ def cancel_task(task_id):
         if task.status not in [TaskStatus.PENDING, TaskStatus.RUNNING]:
             return error_response('只能取消等待中或运行中的任务'), 400
         
-        # 如果是转换任务，取消转换任务
-        if hasattr(task, 'conversion_job') and task.conversion_job:
-            conversion_job = task.conversion_job
-            # 确保conversion_job不是列表，如果是列表则取第一个
-            if isinstance(conversion_job, list):
-                conversion_job = conversion_job[0] if conversion_job else None
+        # 如果是转换任务，使用转换服务取消
+        if task.type == TaskType.DOCUMENT_CONVERSION:
+            from app.services.conversion_service import conversion_service
             
+            # 查找对应的转换任务
+            conversion_job = ConversionJob.query.filter_by(task_id=task.id).first()
             if conversion_job:
-                # 取消Celery任务
-                if conversion_job.celery_task_id:
-                    from app.celery_app import celery
-                    celery.control.revoke(conversion_job.celery_task_id, terminate=True)
-                    logger.info(f"已取消Celery任务: {conversion_job.celery_task_id}")
-                
-                # 更新转换任务状态
-                conversion_job.status = ConversionStatus.CANCELLED
-                
-                # 取消所有未处理的文件
-                for file_detail in conversion_job.file_details:
-                    if file_detail.status in [ConversionStatus.PENDING, ConversionStatus.PROCESSING]:
-                        file_detail.status = ConversionStatus.CANCELLED
+                # 使用转换服务取消任务
+                success = conversion_service.cancel_conversion_job(conversion_job.id)
+                if success:
+                    logger.info(f"转换任务已取消: task_id={task_id}, job_id={conversion_job.id}")
+                    return success_response(message='转换任务取消成功')
+                else:
+                    return error_response('转换任务取消失败'), 400
+        
+        # 对于其他类型的任务，直接取消
+        if task.celery_task_id:
+            try:
+                from app.celery_app import celery
+                celery.control.revoke(task.celery_task_id, terminate=True)
+                logger.info(f"已取消Celery任务: {task.celery_task_id}")
+            except Exception as celery_error:
+                logger.error(f"取消Celery任务失败: {str(celery_error)}")
+                # 即使Celery取消失败，也要更新数据库状态
         
         # 更新主任务状态
         task.status = TaskStatus.CANCELLED
+        task.completed_at = datetime.utcnow()
         db.session.commit()
         
         logger.info(f"任务已取消: {task_id}")
@@ -505,6 +510,100 @@ def batch_delete_tasks():
         logger.error(f"批量删除任务失败: {str(e)}")
         db.session.rollback()
         return error_response('服务器内部错误666'), 500
+
+@api_v1.route('/tasks/cancel-all', methods=['POST'])
+@swag_from({
+    'tags': ['任务'],
+    'summary': '取消所有正在进行的任务',
+    'responses': {
+        200: {
+            'description': '批量取消成功'
+        }
+    }
+})
+def cancel_all_tasks():
+    """取消所有正在进行的任务"""
+    try:
+        # 查找所有可以取消的任务（pending 和 running 状态）
+        cancellable_tasks = Task.query.filter(
+            Task.status.in_([TaskStatus.PENDING, TaskStatus.RUNNING])
+        ).all()
+        
+        if not cancellable_tasks:
+            return success_response(
+                message='没有需要取消的任务',
+                data={
+                    'cancelled_count': 0,
+                    'failed_count': 0,
+                    'total_count': 0
+                }
+            )
+        
+        cancelled_count = 0
+        failed_count = 0
+        
+        for task in cancellable_tasks:
+            try:
+                # 如果是转换任务，使用转换服务取消
+                if task.type == TaskType.DOCUMENT_CONVERSION:
+                    from app.services.conversion_service import conversion_service
+                    
+                    # 查找对应的转换任务
+                    conversion_job = ConversionJob.query.filter_by(task_id=task.id).first()
+                    if conversion_job:
+                        # 使用转换服务取消任务
+                        success = conversion_service.cancel_conversion_job(conversion_job.id)
+                        if success:
+                            cancelled_count += 1
+                            logger.info(f"转换任务已取消: task_id={task.id}, job_id={conversion_job.id}")
+                        else:
+                            failed_count += 1
+                            logger.warning(f"转换任务取消失败: task_id={task.id}")
+                    else:
+                        failed_count += 1
+                        logger.warning(f"未找到对应的转换任务: task_id={task.id}")
+                else:
+                    # 对于其他类型的任务，直接取消
+                    if task.celery_task_id:
+                        try:
+                            from app.celery_app import celery
+                            celery.control.revoke(task.celery_task_id, terminate=True)
+                            logger.info(f"已取消Celery任务: {task.celery_task_id}")
+                        except Exception as celery_error:
+                            logger.error(f"取消Celery任务失败: {str(celery_error)}")
+                    
+                    # 更新任务状态
+                    task.status = TaskStatus.CANCELLED
+                    task.completed_at = datetime.utcnow()
+                    cancelled_count += 1
+                    logger.info(f"任务已取消: {task.id}")
+                    
+            except Exception as e:
+                logger.error(f"取消任务失败 {task.id}: {str(e)}")
+                failed_count += 1
+        
+        # 提交数据库更改
+        db.session.commit()
+        
+        message = f'成功取消 {cancelled_count} 个任务'
+        if failed_count > 0:
+            message += f'，{failed_count} 个任务取消失败'
+        
+        logger.info(f"批量取消任务完成: 成功 {cancelled_count} 个, 失败 {failed_count} 个")
+        
+        return success_response(
+            message=message,
+            data={
+                'cancelled_count': cancelled_count,
+                'failed_count': failed_count,
+                'total_count': len(cancellable_tasks)
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"批量取消所有任务失败: {str(e)}")
+        db.session.rollback()
+        return error_response('服务器内部错误77'), 500
 
 # 注册路由
 api.add_resource(TaskStatusResource, '/tasks/<string:task_id>/status') 

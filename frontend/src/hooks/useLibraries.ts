@@ -227,13 +227,70 @@ export function useLibraryFiles(libraryId: string, initialParams?: LibraryFileQu
     if (libraryId) {
       fetchFiles();
     }
-  }, [fetchFiles, libraryId]);
+  }, [libraryId, initialParams]);
 
   return {
     files,
     pagination,
     ...state,
     fetchFiles,
+    refresh,
+  };
+}
+
+// 获取文件库所有文件的Hook（不分页）
+export function useAllLibraryFiles(libraryId: string) {
+  const [files, setFiles] = useState<LibraryFile[]>([]);
+  const [state, setState] = useState<LoadingState>({ loading: false, error: null });
+
+  const fetchAllFiles = useCallback(async () => {
+    if (!libraryId) return;
+    
+    setState({ loading: true, error: null });
+    try {
+      let allFiles: LibraryFile[] = [];
+      let currentPage = 1;
+      const perPage = 50;
+      let hasMore = true;
+      const maxPages = 100; // 限制最大页数避免无限循环
+      
+      while (hasMore && currentPage <= maxPages) {
+        const result = await LibraryService.getLibraryFiles(libraryId, { 
+          page: currentPage, 
+          per_page: perPage 
+        });
+        
+        allFiles = [...allFiles, ...result.files];
+        hasMore = result.pagination.has_next;
+        currentPage++;
+        
+        // 给UI一个呼吸的机会
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      setFiles(allFiles);
+    } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : '获取所有文件失败';
+      setState({ loading: false, error: errorMessage });
+      return;
+    }
+    setState({ loading: false, error: null });
+  }, [libraryId]);
+
+  const refresh = useCallback(() => {
+    fetchAllFiles();
+  }, [fetchAllFiles]);
+
+  useEffect(() => {
+    if (libraryId) {
+      fetchAllFiles();
+    }
+  }, [libraryId, fetchAllFiles]);
+
+  return {
+    files,
+    ...state,
+    fetchAllFiles,
     refresh,
   };
 }

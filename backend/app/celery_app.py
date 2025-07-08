@@ -11,6 +11,13 @@ def make_celery(app_name=__name__):
         broker_url=Config.CELERY_BROKER_URL,
         result_backend=Config.CELERY_RESULT_BACKEND,
         
+        # Redis 连接配置优化
+        broker_connection_retry=True,
+        broker_connection_retry_on_startup=True,
+        broker_connection_max_retries=10,
+        result_backend_always_retry=True,
+        result_backend_retry_on_timeout=True,
+        
         # 序列化配置
         task_serializer=getattr(Config, 'CELERY_TASK_SERIALIZER', 'json'),
         accept_content=getattr(Config, 'CELERY_ACCEPT_CONTENT', ['json']),

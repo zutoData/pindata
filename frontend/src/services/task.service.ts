@@ -48,7 +48,7 @@ export class TaskService {
   /**
    * 获取单个任务详情
    */
-  static async getTaskById(id: number): Promise<Task> {
+  static async getTaskById(id: string): Promise<Task> {
     const response = await apiClient.get<{
       success: boolean;
       data: Task;
@@ -59,7 +59,7 @@ export class TaskService {
   /**
    * 删除任务
    */
-  static async deleteTask(id: number): Promise<void> {
+  static async deleteTask(id: string): Promise<void> {
     await apiClient.delete<{
       success: boolean;
       message: string;
@@ -69,11 +69,31 @@ export class TaskService {
   /**
    * 取消任务
    */
-  static async cancelTask(id: number): Promise<void> {
+  static async cancelTask(id: string): Promise<void> {
     await apiClient.post<{
       success: boolean;
       message: string;
     }>(`/api/v1/tasks/${id}/cancel`);
+  }
+
+  /**
+   * 取消所有正在进行的任务
+   */
+  static async cancelAllTasks(): Promise<{
+    cancelled_count: number;
+    failed_count: number;
+    total_count: number;
+  }> {
+    const response = await apiClient.post<{
+      success: boolean;
+      message: string;
+      data: {
+        cancelled_count: number;
+        failed_count: number;
+        total_count: number;
+      };
+    }>('/api/v1/tasks/cancel-all');
+    return response.data!;
   }
 
   /**
@@ -90,7 +110,7 @@ export class TaskService {
   /**
    * 批量删除任务
    */
-  static async batchDeleteTasks(taskIds: number[]): Promise<BatchDeleteTasksResponse> {
+  static async batchDeleteTasks(taskIds: string[]): Promise<BatchDeleteTasksResponse> {
     const request: BatchDeleteTasksRequest = {
       task_ids: taskIds
     };

@@ -39,7 +39,7 @@ export interface ResourceUsage {
 
 // 基础任务接口
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   type: TaskType;
   status: TaskStatus;
@@ -103,7 +103,7 @@ export interface TaskQueryParams {
 
 // 批量删除请求接口
 export interface BatchDeleteTasksRequest {
-  task_ids: number[];
+  task_ids: string[];
 }
 
 // 批量删除响应接口

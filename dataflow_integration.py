@@ -56,7 +56,8 @@ class DataFlowIntegration:
                 # 存储真实的pipeline类
                 self.PTTextPipeline = PTTextPipeline
                 self.SFTTextPipeline = SFTTextPipeline
-                self.ChineseTextPipeline = ChineseTextPipeline  # 添加中文友好的pipeline
+                # 注释掉有问题的ChineseTextPipeline引用，因为这个类在文件后面定义
+                # self.ChineseTextPipeline = ChineseTextPipeline  # 添加中文友好的pipeline
                 self.FileStorage = FileStorage
                 self.dataflow_available = True
                 
@@ -85,16 +86,21 @@ class DataFlowIntegration:
         
         try:
             # 如果DataFlow实际可用，优先使用中文友好的pipeline
-            if hasattr(self, 'ChineseTextPipeline'):
+            try:
+                # 动态创建 ChineseTextPipeline 实例
+                chinese_pipeline = ChineseTextPipeline()
                 logger.info("使用中文友好的DataFlow管道")
-                return DataFlowPipelineWrapper(self.ChineseTextPipeline, "chinese_pretrain_filter")
-            elif hasattr(self, 'PTTextPipeline'):
-                logger.info("使用标准DataFlow预训练过滤管道")
-                return DataFlowPipelineWrapper(self.PTTextPipeline, "pretrain_filter")
-            else:
-                # 使用模拟模式
-                logger.info("使用模拟模式创建预训练数据过滤管道")
-                return MockPipeline("pretrain_filter", config)
+                return DataFlowPipelineWrapper(chinese_pipeline.__class__, "chinese_pretrain_filter")
+            except Exception as chinese_error:
+                logger.warning(f"创建中文管道失败: {chinese_error}")
+                # 回退到标准管道
+                if hasattr(self, 'PTTextPipeline'):
+                    logger.info("使用标准DataFlow预训练过滤管道")
+                    return DataFlowPipelineWrapper(self.PTTextPipeline, "pretrain_filter")
+                else:
+                    # 使用模拟模式
+                    logger.info("使用模拟模式创建预训练数据过滤管道")
+                    return MockPipeline("pretrain_filter", config)
             
         except Exception as e:
             logger.error(f"创建预训练数据过滤管道失败: {e}")

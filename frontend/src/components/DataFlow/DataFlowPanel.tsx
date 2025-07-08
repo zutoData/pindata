@@ -14,6 +14,7 @@ import { Textarea } from '../ui/textarea';
 import { dataflowService, DataFlowTask, PipelineType, PipelineConfig } from '../../services/dataflow.service';
 import { chineseDataflowService, ChineseDataFlowPipelineType, ChineseDataFlowTask } from '../../services/chinese-dataflow.service';
 import { LibraryFile } from '../../types/library';
+import { useAllLibraryFiles } from '../../hooks/useLibraries';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../../lib/api-client';
 import { 
@@ -27,7 +28,9 @@ import {
   Clock,
   X,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 // 导入config
@@ -36,7 +39,6 @@ import { config } from '../../lib/config';
 interface DataFlowPanelProps {
   libraryId: string;
   libraryName: string;
-  markdownFiles: LibraryFile[]; // 这里仍然接收markdown文件，但我们会处理所有文件
   onRefresh?: () => void;
 }
 
@@ -50,7 +52,6 @@ interface TaskConfigForm {
 export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
   libraryId,
   libraryName,
-  markdownFiles,
   onRefresh
 }) => {
   const [tasks, setTasks] = useState<DataFlowTask[]>([]);
@@ -62,12 +63,16 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showConfigDialog, setShowConfigDialog] = useState(false);
   const [showChineseDialog, setShowChineseDialog] = useState(false);
+  const [showFileSelectionDialog, setShowFileSelectionDialog] = useState(false);
   const [configForm, setConfigForm] = useState<TaskConfigForm>({
     pipeline_type: '',
     task_name: '',
     description: '',
     config: {}
   });
+
+  // 使用新的 hook 获取所有文件
+  const { files: allFiles, loading: filesLoading, error: filesError, refresh: refreshFiles } = useAllLibraryFiles(libraryId);
 
   useEffect(() => {
     loadInitialData();
@@ -136,6 +141,10 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
   const handleBatchProcess = async (pipelineType: string) => {
     try {
       setIsLoading(true);
+      
+      // 添加英文内容处理提醒
+      toast.success('正在启动原生DataFlow任务（仅支持英文内容）...');
+      
       const template = await dataflowService.getPipelineConfigTemplate(pipelineType);
       
       const response = await dataflowService.batchProcessLibrary(libraryId, {
@@ -186,6 +195,39 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
     }
   };
 
+  // 处理自定义文件选择的批量处理
+  const handleCustomBatchProcess = async (pipelineType: string) => {
+    if (selectedFiles.length === 0) {
+      toast.error('请先选择要处理的文件');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const config = {}; // 使用默认配置
+      const taskName = `${pipelineType}_custom_${new Date().toLocaleString()}`;
+      
+      const task = await chineseDataflowService.processBatchFiles(
+        libraryId,
+        selectedFiles,
+        pipelineType,
+        config,
+        taskName
+      );
+      
+      toast.success(`自定义文件任务已启动: ${task.task_name}`);
+      setSelectedFiles([]);
+      setShowFileSelectionDialog(false);
+      setTimeout(loadTasks, 1000); // 延迟刷新任务列表
+    } catch (error) {
+      console.error('启动自定义文件批量处理失败:', error);
+      toast.error('启动自定义文件批量处理失败');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCreateTask = async () => {
     if (!configForm.pipeline_type || selectedFiles.length === 0) {
       toast.error('请选择流水线类型和文件');
@@ -194,6 +236,10 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
 
     try {
       setIsLoading(true);
+      
+      // 添加英文内容处理提醒
+      toast.success('正在创建原生DataFlow任务（仅支持英文内容）...');
+      
       const task = await dataflowService.createTask({
         library_id: libraryId,
         file_ids: selectedFiles,
@@ -461,7 +507,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
   };
 
   // 计算可处理的文件数量 - 更宽松的条件
-  const availableFiles = markdownFiles.filter(file => 
+  const availableFiles = allFiles.filter(file => 
     file.converted_format === 'markdown' || 
     file.file_type === 'text' || 
     file.file_type === 'pdf' || 
@@ -471,7 +517,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
   );
 
   // 如果没有可处理的文件，显示所有文件
-  const processableFiles = availableFiles.length > 0 ? availableFiles : markdownFiles;
+  const processableFiles = availableFiles.length > 0 ? availableFiles : allFiles;
 
   return (
     <div className="space-y-6">
@@ -504,7 +550,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">{processableFiles.length}</div>
               <div className="text-sm text-gray-600">可处理文件</div>
-              {availableFiles.length === 0 && markdownFiles.length > 0 && (
+              {availableFiles.length === 0 && allFiles.length > 0 && (
                 <div className="text-xs text-orange-600 mt-1">
                   建议先转换为Markdown格式
                 </div>
@@ -544,10 +590,21 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
           <CardTitle>快速操作</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* 原生DataFlow功能 - 英文提醒 */}
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-center gap-2 text-amber-800">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="font-medium">提示：</span>
+            </div>
+            <div className="text-sm text-amber-700 mt-1">
+              原生DataFlow功能目前只支持英文内容处理。如需处理中文内容，请使用下方的"中文DataFlow"功能。
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
               onClick={() => handleBatchProcess('PRETRAIN_FILTER')}
-              disabled={!isHealthy || isLoading}
+              disabled={isLoading || processableFiles.length === 0}
               className="w-full"
             >
               <Play className="w-4 h-4 mr-2" />
@@ -555,7 +612,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
             </Button>
             <Button
               onClick={() => handleBatchProcess('PRETRAIN_SYNTHETIC')}
-              disabled={!isHealthy || isLoading}
+              disabled={isLoading || processableFiles.length === 0}
               className="w-full"
               variant="outline"
             >
@@ -563,6 +620,19 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
               预训练数据合成
             </Button>
           </div>
+          
+          {/* 健康状态警告 */}
+          {!isHealthy && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-800">
+                <AlertTriangle className="w-4 h-4" />
+                <span className="font-medium">注意：</span>
+              </div>
+              <div className="text-sm text-yellow-700 mt-1">
+                DataFlow服务连接异常，系统将尝试使用模拟模式运行。如遇到问题，请检查DataFlow服务状态。
+              </div>
+            </div>
+          )}
           
           {/* 分隔线 */}
           <div className="flex items-center my-4">
@@ -572,10 +642,20 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
           </div>
           
           {/* 中文DataFlow快速操作 */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-800">
+              <CheckCircle className="w-4 h-4" />
+              <span className="font-medium">中文DataFlow优势：</span>
+            </div>
+            <div className="text-sm text-blue-700 mt-1">
+              针对中文内容优化，支持中文文本清理、分词、语义理解等高级功能。
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Button
               onClick={() => handleChineseBatchProcess('CHINESE_PRETRAIN_FILTER')}
-              disabled={isLoading}
+              disabled={isLoading || processableFiles.length === 0}
               className="w-full"
               variant="default"
             >
@@ -584,7 +664,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
             </Button>
             <Button
               onClick={() => handleChineseBatchProcess('CHINESE_PRETRAIN_SYNTHESIS')}
-              disabled={isLoading}
+              disabled={isLoading || processableFiles.length === 0}
               className="w-full"
               variant="secondary"
             >
@@ -593,13 +673,46 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
             </Button>
             <Button
               onClick={() => setShowChineseDialog(true)}
-              disabled={isLoading}
+              disabled={isLoading || processableFiles.length === 0}
               className="w-full"
               variant="outline"
             >
               <Settings className="w-4 h-4 mr-2" />
               中文自定义任务
             </Button>
+          </div>
+          
+          {/* 高级功能 */}
+          <div className="mt-4">
+            <div className="flex items-center mb-3">
+              <div className="flex-1 h-px bg-gray-200"></div>
+              <span className="px-3 text-sm text-gray-500">高级功能</span>
+              <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Button
+                onClick={() => setShowFileSelectionDialog(true)}
+                disabled={isLoading}
+                className="w-full"
+                variant="outline"
+              >
+                <CheckSquare className="w-4 h-4 mr-2" />
+                自定义文件选择
+              </Button>
+              <Button
+                onClick={() => {
+                  setSelectedFiles(processableFiles.map(f => f.id));
+                  toast.success(`已选择 ${processableFiles.length} 个文件`);
+                }}
+                disabled={isLoading || processableFiles.length === 0}
+                className="w-full"
+                variant="outline"
+              >
+                <Square className="w-4 h-4 mr-2" />
+                全选所有文件
+              </Button>
+            </div>
           </div>
           
           {/* 文件状态提示 */}
@@ -621,7 +734,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
                 <Button
                   variant="outline"
                   className="w-full"
-                  disabled={!isHealthy}
+                  disabled={isLoading || processableFiles.length === 0}
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   自定义任务
@@ -629,7 +742,7 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>创建自定义DataFlow任务</DialogTitle>
+                  <DialogTitle>创建自定义DataFlow任务（仅支持英文内容）</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -776,6 +889,120 @@ export const DataFlowPanel: React.FC<DataFlowPanelProps> = ({
                     >
                       <div className="text-base font-medium mb-1">自定义任务</div>
                       <div className="text-xs text-gray-600">文本清理、分词等</div>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          {/* 文件选择对话框 */}
+          <Dialog open={showFileSelectionDialog} onOpenChange={setShowFileSelectionDialog}>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+              <DialogHeader>
+                <DialogTitle>选择要处理的文件</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {/* 文件统计信息 */}
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>共 {processableFiles.length} 个可处理文件</span>
+                    <span>已选择 {selectedFiles.length} 个文件</span>
+                  </div>
+                </div>
+                
+                {/* 批量操作按钮 */}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedFiles(processableFiles.map(f => f.id))}
+                  >
+                    全选
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedFiles([])}
+                  >
+                    取消全选
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const markdownFiles = processableFiles.filter(f => f.converted_format === 'markdown');
+                      setSelectedFiles(markdownFiles.map(f => f.id));
+                    }}
+                  >
+                    只选择 Markdown 文件
+                  </Button>
+                </div>
+                
+                {/* 文件列表 */}
+                <div className="max-h-96 overflow-y-auto border rounded-lg">
+                  <div className="p-4 space-y-2">
+                    {processableFiles.map(file => (
+                      <div key={file.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedFiles.includes(file.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedFiles(prev => [...prev, file.id]);
+                            } else {
+                              setSelectedFiles(prev => prev.filter(id => id !== file.id));
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {file.original_filename}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {file.converted_format || file.file_type} • {file.file_size_human}
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <Badge variant="outline" className="text-xs">
+                            {file.converted_format || file.file_type}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 任务类型选择 */}
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-gray-700">选择处理任务类型：</div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <Button
+                      onClick={() => handleCustomBatchProcess('CHINESE_PRETRAIN_FILTER')}
+                      disabled={selectedFiles.length === 0 || isLoading}
+                      className="w-full"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      中文预训练过滤
+                    </Button>
+                    <Button
+                      onClick={() => handleCustomBatchProcess('CHINESE_PRETRAIN_SYNTHESIS')}
+                      disabled={selectedFiles.length === 0 || isLoading}
+                      variant="secondary"
+                      className="w-full"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      中文预训练合成
+                    </Button>
+                    <Button
+                      onClick={() => handleCustomBatchProcess('CHINESE_CUSTOM_TASK')}
+                      disabled={selectedFiles.length === 0 || isLoading}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      中文自定义任务
                     </Button>
                   </div>
                 </div>

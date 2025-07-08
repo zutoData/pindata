@@ -77,12 +77,16 @@ evaluate
 spacy>=3.8.0
 nltk
 fasttext
+fasttext-wheel  # DataFlow需要的fasttext wheel版本
 kenlm
 langkit
 presidio_analyzer[transformers]
 presidio_anonymizer
 rapidfuzz
 word2number
+contractions  # DataFlow文本预处理
+symspellpy  # DataFlow拼写检查
+simhash  # DataFlow文本相似度计算
 
 # =============================================================================
 # LLM 集成
@@ -138,6 +142,9 @@ colorlog
 colorama
 termcolor
 pyfiglet
+appdirs  # DataFlow需要
+docstring_parser  # DataFlow需要
+addict  # DataFlow需要
 
 # =============================================================================
 # 专用工具
@@ -145,9 +152,6 @@ pyfiglet
 func_timeout
 sqlglot
 math_verify
-addict
-appdirs
-docstring_parser
 
 # =============================================================================
 # Web 和 API

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Progress } from '../../../components/ui/progress';
 import { Input } from '../../../components/ui/input';
+import { Pagination } from '../../../components/ui/pagination';
 
 import {
   ArrowLeftIcon,
@@ -49,13 +50,14 @@ import {
 } from 'lucide-react';
 
 // 导入API相关类型和Hook
-import { Library } from '../../../types/library';
+import { Library, LibraryFileQueryParams, LibraryFile } from '../../../types/library';
 import { FileUpload } from '../FileUpload';
 import { useLibraryFiles, useFileActions } from '../../../hooks/useLibraries';
 import { useFileConversion } from '../../../hooks/useFileConversion';
 import { ConvertToMarkdownDialog, ConversionConfig } from './components/ConvertToMarkdownDialog';
 import { ConversionProgress } from './components/ConversionProgress';
 import { DataFlowPanel } from '../../../components/DataFlow/DataFlowPanel';
+import { LibraryService } from '../../../services/library.service';
 
 interface LibraryDetailsProps {
   onBack: () => void;
@@ -72,12 +74,47 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
   const [showConvertDialog, setShowConvertDialog] = useState(false);
   const [conversionJobs, setConversionJobs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'files' | 'dataflow'>('files');
+  const [allConvertableFiles, setAllConvertableFiles] = useState<any[]>([]);
+  const [loadingAllFiles, setLoadingAllFiles] = useState(false);
+  const [isConvertingAll, setIsConvertingAll] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState({ current: 0, total: 0 });
+  
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  
+  // 构造查询参数 - 使用 useMemo 避免每次渲染都创建新对象
+  const queryParams = useMemo<LibraryFileQueryParams>(() => ({
+    page: currentPage,
+    per_page: pageSize,
+    filename: searchTerm || undefined,
+    process_status: filterStatus === 'all' ? undefined : filterStatus as any,
+  }), [currentPage, pageSize, searchTerm, filterStatus]);
   
   // 使用Hook获取文件列表
-  const { files, loading: filesLoading, error: filesError, refresh: refreshFiles } = useLibraryFiles(library.id);
+  const { files, pagination, loading: filesLoading, error: filesError, fetchFiles, refresh: refreshFiles } = useLibraryFiles(library.id, queryParams);
   const { deleteFile, downloadFile, loading: deleteLoading } = useFileActions();
   const { convertFiles, getConversionJob, cancelConversionJob, loading: convertLoading } = useFileConversion();
   const navigate = useNavigate();
+
+  // 当搜索条件或过滤条件改变时，重置到第一页
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [pageSize, searchTerm, filterStatus]);
+
+  // 防抖搜索
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      // 当搜索或过滤条件改变时，自动触发获取数据
+      // 这里不需要手动调用fetchFiles，因为useLibraryFiles会自动响应queryParams的变化
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm]);
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
@@ -170,20 +207,154 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
     setShowConvertDialog(true);
   };
 
+  // 获取所有可转换的文件
+  const fetchAllConvertableFiles = async () => {
+    setLoadingAllFiles(true);
+    try {
+      let allFiles: LibraryFile[] = [];
+      let currentPage = 1;
+      const perPage = 50; // 减少每页数量，加快响应
+      let hasMore = true;
+      let maxAttempts = 50; // 减少最大页数，避免过长等待
+      
+      console.log('开始获取所有可转换文件...');
+      
+      // 先获取第一页来了解总页数
+      const firstResult = await LibraryService.getLibraryFiles(library.id, { 
+        page: 1, 
+        per_page: perPage
+      });
+      
+      allFiles = [...firstResult.files];
+      const totalPages = Math.min(firstResult.pagination.total_pages, maxAttempts);
+      setFetchProgress({ current: 1, total: totalPages });
+      
+      hasMore = firstResult.pagination.has_next;
+      currentPage = 2;
+      
+      // 分页获取剩余文件
+      while (hasMore && currentPage <= totalPages) {
+        console.log(`正在获取第 ${currentPage}/${totalPages} 页...`);
+        
+        const result = await LibraryService.getLibraryFiles(library.id, { 
+          page: currentPage, 
+          per_page: perPage
+        });
+        
+        console.log(`第 ${currentPage} 页获取到 ${result.files.length} 个文件`);
+        allFiles = [...allFiles, ...result.files];
+        
+        // 更新进度
+        setFetchProgress({ current: currentPage, total: totalPages });
+        
+        // 检查是否还有更多页面
+        hasMore = result.pagination.has_next;
+        currentPage++;
+        
+        // 给UI一个呼吸的机会，避免卡死
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      console.log(`总共获取到 ${allFiles.length} 个文件`);
+      
+      // 过滤出可转换的文件（排除已经转换过的或正在转换的）
+      const convertableFiles = allFiles.filter((file: LibraryFile) => {
+        // 只包含已完成处理但还未转换为markdown的文件
+        return (file.process_status === 'completed' || file.process_status === 'pending') && 
+               !file.converted_format; // 排除已经转换过的文件
+      });
+      
+      console.log(`过滤后有 ${convertableFiles.length} 个可转换文件`);
+      
+      setAllConvertableFiles(convertableFiles);
+      return convertableFiles;
+    } catch (error) {
+      console.error('获取文件列表失败:', error);
+      showNotification('error', '获取文件列表失败');
+      return [];
+    } finally {
+      setLoadingAllFiles(false);
+      setFetchProgress({ current: 0, total: 0 });
+    }
+  };
+
+  // 一键全部转MD功能 - 提供选择弹窗
+  const handleConvertAllToMD = async () => {
+    // 先获取当前页面可转换的文件数量
+    const currentPageConvertable = files.filter((file: LibraryFile) => {
+      return (file.process_status === 'completed' || file.process_status === 'pending') && 
+             !file.converted_format;
+    });
+    
+    // 如果当前页面有可转换文件，提供选择
+    if (currentPageConvertable.length > 0) {
+      const choice = window.confirm(
+        `检测到当前页面有 ${currentPageConvertable.length} 个可转换文件。\n\n` +
+        `点击"确定"：只转换当前页面的文件（快速）\n` +
+        `点击"取消"：获取所有分页的文件再转换（可能较慢）`
+      );
+      
+      setIsConvertingAll(true);
+      
+      if (choice) {
+        // 快速模式：只转换当前页面
+        setAllConvertableFiles(currentPageConvertable);
+        setShowConvertDialog(true);
+      } else {
+        // 完整模式：获取所有分页
+        const convertableFiles = await fetchAllConvertableFiles();
+        
+        if (convertableFiles.length === 0) {
+          showNotification('error', '没有可转换的文件');
+          setIsConvertingAll(false);
+          return;
+        }
+        
+        setShowConvertDialog(true);
+      }
+    } else {
+      // 当前页面没有可转换文件，直接获取所有文件
+      setIsConvertingAll(true);
+      const convertableFiles = await fetchAllConvertableFiles();
+      
+      if (convertableFiles.length === 0) {
+        showNotification('error', '没有可转换的文件');
+        setIsConvertingAll(false);
+        return;
+      }
+      
+      setShowConvertDialog(true);
+    }
+  };
+
   const handleConvertConfirm = async (config: ConversionConfig) => {
-    const selectedFilesList = files.filter(f => selectedFiles.has(f.id));
-    const fileIds = selectedFilesList.map(f => f.id);
+    let fileIds: string[];
+    let count: number;
+    
+    if (isConvertingAll) {
+      // 全部转换模式
+      fileIds = allConvertableFiles.map(f => f.id);
+      count = allConvertableFiles.length;
+    } else {
+      // 选中文件转换模式
+      const selectedFilesList = files.filter(f => selectedFiles.has(f.id));
+      fileIds = selectedFilesList.map(f => f.id);
+      count = selectedFiles.size;
+    }
     
     const job = await convertFiles(library.id, fileIds, config);
     if (job) {
-      showNotification('success', t('libraryDetails.convertSubmitted', { count: selectedFiles.size }));
+      showNotification('success', `已提交 ${count} 个文件的转换任务`);
       setSelectedFiles(new Set());
       setShowConvertDialog(false);
+      setIsConvertingAll(false);
+      setAllConvertableFiles([]);
+      setFetchProgress({ current: 0, total: 0 });
       refreshFiles();
       // 添加到转换任务列表
       setConversionJobs(prev => [job, ...prev]);
     } else {
-      showNotification('error', t('libraryDetails.convertFailed'));
+      showNotification('error', '转换任务提交失败');
     }
   };
 
@@ -202,16 +373,35 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
   const handleCancelJob = async (jobId: string) => {
     const success = await cancelConversionJob(jobId);
     if (success) {
-      showNotification('success', t('libraryDetails.cancelSuccess'));
-      handleRefreshJobs();
+      showNotification('success', t('libraryDetails.jobCancelled'));
+      await handleRefreshJobs();
     } else {
-      showNotification('error', t('libraryDetails.cancelFailed'));
+      showNotification('error', t('libraryDetails.jobCancelFailed'));
     }
   };
 
   const handleSingleFileConvert = (fileId: string) => {
     setSelectedFiles(new Set([fileId]));
     setShowConvertDialog(true);
+  };
+
+  // 处理分页
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+  };
+
+  // 处理搜索
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // 处理状态过滤
+  const handleFilterChange = (status: string) => {
+    setFilterStatus(status);
   };
 
   const getFileTypeIcon = (fileType: string) => {
@@ -453,15 +643,34 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
             <div>
               <h3 className="text-lg font-semibold text-[#0c141c]">{t('libraryDetails.fileList')}</h3>
               <p className="text-sm text-[#4f7096]">
-{t('libraryDetails.totalFilesCount', { count: files.length })}
+                {pagination ? `共 ${pagination.total} 个文件` : `共 ${files.length} 个文件`}
                 {selectedFiles.size > 0 && (
                   <span className="ml-2 text-[#1977e5]">
-{t('libraryDetails.selectedCount', { count: selectedFiles.size })}
+                    已选择 {selectedFiles.size} 个
                   </span>
                 )}
               </p>
             </div>
             <div className="flex items-center gap-2">
+              {/* 一键全部转MD按钮 */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleConvertAllToMD}
+                disabled={convertLoading || loadingAllFiles}
+                className="flex items-center gap-2 text-[#1977e5] border-[#1977e5] hover:bg-[#1977e5] hover:text-white"
+              >
+                {loadingAllFiles ? (
+                  <RefreshCwIcon className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FileTextIcon className="w-4 h-4" />
+                )}
+                {loadingAllFiles 
+                  ? `获取文件中 (${fetchProgress.current}/${fetchProgress.total})`
+                  : '一键全部转MD'
+                }
+              </Button>
+              
               {selectedFiles.size > 0 && (
                 <>
                   <Button
@@ -472,7 +681,7 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
                     className="flex items-center gap-2 text-[#1977e5] border-[#1977e5] hover:bg-[#1977e5] hover:text-white"
                   >
                     <FileEditIcon className="w-4 h-4" />
-{t('libraryDetails.convertToMD')} ({selectedFiles.size})
+                    转换选中 ({selectedFiles.size})
                   </Button>
                   <Button
                     variant="outline"
@@ -482,7 +691,7 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
                     className="flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-600 hover:text-white"
                   >
                     <Trash2Icon className="w-4 h-4" />
-                    {t('libraryDetails.batchDelete')} ({selectedFiles.size})
+                    删除选中 ({selectedFiles.size})
                   </Button>
                 </>
               )}
@@ -494,8 +703,37 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
                 className="flex items-center gap-2"
               >
                 <RefreshCwIcon className={`w-4 h-4 ${filesLoading ? 'animate-spin' : ''}`} />
-{t('libraryDetails.refresh')}
+                刷新
               </Button>
+            </div>
+          </div>
+          
+          {/* 搜索和过滤 */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex-1">
+              <div className="relative">
+                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#4f7096]" />
+                <Input
+                  placeholder="搜索文件名..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <FilterIcon className="w-4 h-4 text-[#4f7096]" />
+              <select
+                value={filterStatus}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                className="px-3 py-1 border border-[#d1dbe8] rounded-md text-sm"
+              >
+                <option value="all">全部状态</option>
+                <option value="pending">待处理</option>
+                <option value="processing">处理中</option>
+                <option value="completed">已完成</option>
+                <option value="failed">失败</option>
+              </select>
             </div>
           </div>
         </div>
@@ -644,6 +882,20 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
             </Table>
           </div>
         )}
+        
+        {/* 分页组件 */}
+        {pagination && pagination.total > 0 && (
+          <div className="p-4 border-t border-[#d1dbe8]">
+            <Pagination
+              currentPage={pagination.page}
+              totalPages={pagination.total_pages}
+              totalItems={pagination.total}
+              pageSize={pagination.per_page}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+            />
+          </div>
+        )}
       </Card>
         </>
       )}
@@ -653,7 +905,6 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
         <DataFlowPanel
           libraryId={library.id}
           libraryName={library.name}
-          markdownFiles={files.filter(f => f.converted_format === 'markdown')}
           onRefresh={refreshFiles}
         />
       )}
@@ -674,14 +925,23 @@ export const LibraryDetails = ({ onBack, onFileSelect, library }: LibraryDetails
           open={showConvertDialog}
           onClose={() => {
             setShowConvertDialog(false);
+            setIsConvertingAll(false);
+            setAllConvertableFiles([]);
+            setFetchProgress({ current: 0, total: 0 });
             // 如果是单文件转换，清除选择
             if (selectedFiles.size === 1) {
               setSelectedFiles(new Set());
             }
           }}
-          files={selectedFilesForConversion}
+          files={isConvertingAll ? allConvertableFiles : selectedFilesForConversion}
           onConfirm={handleConvertConfirm}
-          loading={convertLoading}
+          loading={convertLoading || loadingAllFiles}
+          title={isConvertingAll ? "一键全部转 Markdown" : "转换为 Markdown"}
+          description={
+            isConvertingAll 
+              ? `将知识库中的所有 ${allConvertableFiles.length} 个可转换文件转换为 Markdown 格式（已排除已转换的文件）` 
+              : `将选中的 ${selectedFiles.size} 个文件转换为 Markdown 格式，支持多种转换方式`
+          }
         />
       )}
 
