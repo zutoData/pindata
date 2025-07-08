@@ -370,7 +370,7 @@ export const Tasks = (): JSX.Element => {
 
     try {
       setLoading(true);
-      const taskIds = Array.from(selectedTasks).map(id => parseInt(id));
+      const taskIds = Array.from(selectedTasks);
       
       if (operation === 'delete') {
         const result = await taskService.batchDeleteTasks(taskIds);
@@ -406,13 +406,12 @@ export const Tasks = (): JSX.Element => {
   const handleTaskOperation = async (taskId: string, operation: 'pause' | 'resume' | 'cancel' | 'retry' | 'delete') => {
     try {
       setLoading(true);
-      const numericTaskId = parseInt(taskId);
       
       if (operation === 'delete') {
-        await taskService.deleteTask(numericTaskId);
+        await taskService.deleteTask(taskId);
         console.log('任务删除成功');
       } else if (operation === 'cancel') {
-        await taskService.cancelTask(numericTaskId);
+        await taskService.cancelTask(taskId);
         console.log('任务取消成功');
       }
       
@@ -429,6 +428,32 @@ export const Tasks = (): JSX.Element => {
   const handleRefresh = async () => {
     await fetchTasks();
     await fetchStatistics();
+  };
+
+  const handleCancelAllTasks = async () => {
+    if (!window.confirm('确定要取消所有正在进行的任务吗？此操作不可撤销。')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await taskService.cancelAllTasks();
+      
+      if (result.total_count === 0) {
+        console.log('没有需要取消的任务');
+      } else {
+        const message = `成功取消 ${result.cancelled_count} 个任务${result.failed_count > 0 ? `，${result.failed_count} 个任务取消失败` : ''}`;
+        console.log(message);
+      }
+      
+      await fetchTasks();
+      await fetchStatistics();
+    } catch (error: any) {
+      console.error('取消所有任务失败:', error);
+      console.log(error.message || '取消所有任务失败');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -513,6 +538,20 @@ export const Tasks = (): JSX.Element => {
           {/* 操作栏 */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex gap-2">
+              {/* 取消所有任务按钮 */}
+              {(statistics.pending > 0 || statistics.running > 0) && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCancelAllTasks}
+                  disabled={loading}
+                  className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                >
+                  <XIcon className="w-4 h-4 mr-2" />
+                  取消所有任务 ({statistics.pending + statistics.running})
+                </Button>
+              )}
+              
               {selectedTasks.size > 0 && (
                 <>
                   <Button 
@@ -522,7 +561,7 @@ export const Tasks = (): JSX.Element => {
                     className="border-[#d1dbe8] text-[#4f7096] hover:bg-[#e8edf2]"
                   >
                     <PauseIcon className="w-4 h-4 mr-2" />
-                    {t('tasks.actions.pauseSelected')} ({selectedTasks.size})
+                    暂停选中 ({selectedTasks.size})
                   </Button>
                   <Button 
                     variant="outline" 
@@ -531,7 +570,7 @@ export const Tasks = (): JSX.Element => {
                     className="border-[#d1dbe8] text-red-600 hover:bg-red-50"
                   >
                     <XIcon className="w-4 h-4 mr-2" />
-                    {t('tasks.actions.cancelSelected')}
+                    取消选中
                   </Button>
                 </>
               )}

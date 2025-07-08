@@ -44,6 +44,8 @@ interface ConvertToMarkdownDialogProps {
   }>;
   onConfirm: (conversionConfig: ConversionConfig) => void;
   loading?: boolean;
+  title?: string;
+  description?: string;
 }
 
 export interface ConversionConfig {
@@ -65,7 +67,9 @@ export const ConvertToMarkdownDialog = ({
   onClose,
   files,
   onConfirm,
-  loading = false
+  loading = false,
+  title = "转换为 Markdown",
+  description = "将选中的文件转换为 Markdown 格式，支持多种转换方式"
 }: ConvertToMarkdownDialogProps): JSX.Element => {
   const [conversionMethod, setConversionMethod] = useState<'markitdown' | 'vision_llm'>('markitdown');
   const [selectedLLMConfig, setSelectedLLMConfig] = useState<string>('');
@@ -169,10 +173,10 @@ export const ConvertToMarkdownDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileEditIcon className="w-5 h-5 text-[#1977e5]" />
-            转换为 Markdown
+            {title}
           </DialogTitle>
           <DialogDescription>
-            将选中的文件转换为 Markdown 格式，支持多种转换方式
+            {description}
           </DialogDescription>
         </DialogHeader>
 

@@ -284,30 +284,51 @@ class ConversionService:
         try:
             job = ConversionJob.query.get(job_id)
             if not job:
+                logger.warning(f"取消任务失败: 任务不存在 {job_id}")
                 return False
             
             if job.status in [ConversionStatus.PENDING, ConversionStatus.PROCESSING]:
+                logger.info(f"正在取消转换任务: {job_id}, 当前状态: {job.status}")
+                
+                # 更新任务状态
                 job.status = ConversionStatus.CANCELLED
                 job.task.status = TaskStatus.CANCELLED
+                job.completed_at = datetime.utcnow()
+                job.task.completed_at = datetime.utcnow()
                 
                 # 取消所有未处理的文件
+                cancelled_files = 0
                 for file_detail in job.file_details:
                     if file_detail.status in [ConversionStatus.PENDING, ConversionStatus.PROCESSING]:
                         file_detail.status = ConversionStatus.CANCELLED
+                        cancelled_files += 1
+                
+                logger.info(f"已取消 {cancelled_files} 个文件的处理")
                 
                 # 取消 Celery 任务
                 if job.celery_task_id:
-                    from app.celery_app import celery
-                    celery.control.revoke(job.celery_task_id, terminate=True)
-                    logger.info(f"已取消 Celery 任务: {job.celery_task_id}")
+                    try:
+                        from app.celery_app import celery
+                        celery.control.revoke(job.celery_task_id, terminate=True)
+                        logger.info(f"已发送 Celery 任务取消信号: {job.celery_task_id}")
+                    except Exception as celery_error:
+                        logger.error(f"取消 Celery 任务失败: {str(celery_error)}")
+                        # 即使 Celery 取消失败，也要更新数据库状态
+                
+                # 添加取消日志
+                job.add_log(f"任务已被取消，共取消 {cancelled_files} 个文件", level='WARNING')
                 
                 db.session.commit()
                 
+                logger.info(f"转换任务取消成功: {job_id}")
                 return True
-            
-            return False
+            else:
+                logger.info(f"任务无法取消，当前状态: {job.status}")
+                return False
+                
         except Exception as e:
             logger.error(f"取消转换任务失败 {job_id}: {str(e)}")
+            db.session.rollback()
             return False
 
 # 单例模式
