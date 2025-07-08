@@ -253,6 +253,17 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
   const renderPreviewContent = (filePreview: any) => {
     const { file, preview } = filePreview;
 
+    // 添加更详细的错误处理
+    if (!preview) {
+      console.error('Preview data is missing for file:', file);
+      return (
+        <div className="flex items-center justify-center py-8 text-red-500">
+          <AlertCircleIcon className="w-5 h-5 mr-2" />
+          <span>{t('dataPreview.previewDataMissing')}</span>
+        </div>
+      );
+    }
+
     if (preview.type === 'error') {
       return (
         <div className="flex items-center justify-center py-8 text-red-500">
@@ -262,28 +273,39 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
       );
     }
 
-    switch (preview.type) {
-      case 'tabular':
-        return renderTabularPreview(preview);
-      case 'json':
-        return renderJsonPreview(preview);
-      case 'text':
-        return renderTextPreview(preview);
-      case 'image':
-        return renderImagePreview(preview);
-      case 'unsupported':
-        return (
-          <div className="flex items-center justify-center py-8 text-gray-500">
-            <FileTextIcon className="w-5 h-5 mr-2" />
-            <span>{preview.message || t('dataPreview.previewDeveloping')}</span>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex items-center justify-center py-8 text-gray-500">
-            <span>{t('dataPreview.unsupportedPreview')}</span>
-          </div>
-        );
+    try {
+      switch (preview.type) {
+        case 'tabular':
+          return renderTabularPreview(preview);
+        case 'json':
+          return renderJsonPreview(preview);
+        case 'text':
+          return renderTextPreview(preview);
+        case 'image':
+          return renderImagePreview(preview);
+        case 'unsupported':
+          return (
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <FileTextIcon className="w-5 h-5 mr-2" />
+              <span>{preview.message || t('dataPreview.previewDeveloping')}</span>
+            </div>
+          );
+        default:
+          console.warn('Unknown preview type:', preview.type);
+          return (
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <span>{t('dataPreview.unsupportedPreview')}</span>
+            </div>
+          );
+      }
+    } catch (error) {
+      console.error('Error rendering preview content:', error, 'Preview data:', preview);
+      return (
+        <div className="flex items-center justify-center py-8 text-red-500">
+          <AlertCircleIcon className="w-5 h-5 mr-2" />
+          <span>{t('dataPreview.previewRenderError')}</span>
+        </div>
+      );
     }
   };
 
@@ -345,6 +367,10 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
   };
 
   const renderJsonPreview = (preview: any) => {
+    if (!preview.items || preview.items.length === 0) {
+      return <div className="text-center py-4 text-gray-500">{t('dataPreview.noDataToPreview')}</div>;
+    }
+
     return (
       <div className="space-y-4">
         <div className="flex gap-2">
@@ -374,6 +400,10 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
   };
 
   const renderTextPreview = (preview: any) => {
+    if (!preview.items || preview.items.length === 0) {
+      return <div className="text-center py-4 text-gray-500">{t('dataPreview.noDataToPreview')}</div>;
+    }
+
     return (
       <div className="space-y-4">
         <div className="flex gap-2">
@@ -402,7 +432,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
   };
 
   const renderImagePreview = (preview: any) => {
-    if (preview.format === 'single_image' && preview.items.length > 0) {
+    if (preview.format === 'single_image' && preview.items && preview.items.length > 0) {
       const item = preview.items[0];
       return (
         <div className="space-y-4">

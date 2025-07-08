@@ -31,5 +31,10 @@
   "rows": "行",
   "format": "格式",
   "totalItems": "总条目",
-  "items": "条"
+  "items": "条",
+  "previewDataMissing": "预览数据缺失",
+  "previewRenderError": "预览渲染错误",
+  "unsupportedFileType": "不支持的文件类型",
+  "previewDeveloping": "预览功能开发中",
+  "unsupportedPreview": "不支持的预览格式"
 }

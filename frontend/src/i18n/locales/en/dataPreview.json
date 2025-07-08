@@ -45,5 +45,7 @@
   "versionInfo": "Version Info",
   "commitHash": "Commit Hash",
   "createTime": "Create Time",
-  "commitMessage": "Commit Message"
+  "commitMessage": "Commit Message",
+  "previewDataMissing": "Preview data missing",
+  "previewRenderError": "Preview render error"
 }

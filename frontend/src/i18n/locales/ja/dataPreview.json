@@ -45,5 +45,7 @@
   "versionInfo": "バージョン情報",
   "commitHash": "コミットハッシュ",
   "createTime": "作成時間",
-  "commitMessage": "コミットメッセージ"
+  "commitMessage": "コミットメッセージ",
+  "previewDataMissing": "プレビューデータが見つかりません",
+  "previewRenderError": "プレビューレンダリングエラー"
 }
