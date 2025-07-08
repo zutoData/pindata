@@ -1058,18 +1058,14 @@ def _generate_pretraining_cleaning_data(content: str, model_config: Dict, proces
 
 def _build_pretraining_cleaning_prompt(chunk: str, config: Dict) -> str:
     """构建预训练数据清洗提示词 - 简单高效"""
-    prompt = f"""请清洗以下文本，使其适合用于语言模型预训练。要求：
+    prompt = f"""你是一个文本清洗助理。下面是一段文字，请帮我把它清洗成适合预训练的纯净文本。
 
-1. 去除所有markdown格式（#标题、**粗体**、*斜体*、```代码块```等）
-2. 去除多余的空格和空行
-3. 保留所有有价值的文本内容
-4. 确保句子完整和流畅
-5. 输出纯净的文本，每段之间用一个空行分隔
+去除markdown格式、多余空格和空行，保留有价值内容，确保句子完整流畅。
 
 原文本：
 {chunk}
 
-请直接输出清洗后的文本，不要添加任何说明："""
+清洗后的文本："""
     
     return prompt
 
