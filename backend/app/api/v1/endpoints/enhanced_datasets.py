@@ -141,7 +141,7 @@ def create_enhanced_dataset_version(dataset_id):
         logger.error(f"创建数据集版本失败: {str(e)}")
         return error_response('创建版本失败'), 500
 
-@api_v1.route('/datasets/<int:dataset_id>/preview', methods=['GET'])
+@api_v1.route('/enhanced-datasets/<int:dataset_id>/preview', methods=['GET'])
 @swag_from({
     'tags': ['增强数据集'],
     'summary': '获取数据集预览',
@@ -160,11 +160,18 @@ def create_enhanced_dataset_version(dataset_id):
             'description': '版本ID（不指定则使用默认版本）'
         },
         {
-            'name': 'max_items',
+            'name': 'page',
+            'in': 'query',
+            'type': 'integer',
+            'default': 1,
+            'description': '文件列表的页码，默认为1'
+        },
+        {
+            'name': 'per_page',
             'in': 'query',
             'type': 'integer',
             'default': 10,
-            'description': '最大预览项目数'
+            'description': '每页文件数量，默认为10'
         }
     ],
     'responses': {
@@ -176,12 +183,14 @@ def get_dataset_preview(dataset_id):
     """获取数据集预览"""
     try:
         version_id = request.args.get('version_id')
-        max_items = request.args.get('max_items', 10, type=int)
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
         
         preview_data = EnhancedDatasetService.get_dataset_preview(
             dataset_id=dataset_id,
             version_id=version_id,
-            max_items=max_items
+            page=page,
+            per_page=per_page
         )
         
         return success_response(

@@ -46,6 +46,10 @@ export const DatasetDetailScreen = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('preview');
   const [error, setError] = useState<string | null>(null);
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filesPerPage, setFilesPerPage] = useState(10);
   
   // 打包下载相关状态
   const [isPackageDownloading, setIsPackageDownloading] = useState(false);
@@ -60,30 +64,44 @@ export const DatasetDetailScreen = (): JSX.Element => {
   } | null>(null);
   const [packageInfoLoading, setPackageInfoLoading] = useState(false);
 
-  // 获取数据集详情
-  const fetchDatasetDetail = async () => {
+  // 获取数据集预览数据（支持分页）
+  const fetchPreviewPage = async (page: number, perPage: number, versionId?: string) => {
     if (!id) return;
     
     try {
       setLoading(true);
       setError(null);
-      const [datasetInfo, preview] = await Promise.all([
-        datasetService.getDatasetById(id),
-        enhancedDatasetService.getDatasetPreview(parseInt(id))
-      ]);
-      setDataset(datasetInfo);
-      setPreviewData(preview);
-      setCurrentVersion(preview.version);
+      const preview = await enhancedDatasetService.getDatasetPreview(
+        parseInt(id),
+        versionId || currentVersion?.id,
+        page,
+        perPage
+      );
       
-      // 获取打包信息
-      fetchPackageInfo();
+      // 只有在第一次加载或版本切换时才设置dataset和version
+      if (!dataset || (versionId && versionId !== currentVersion?.id)) {
+        setDataset(preview.dataset);
+        setCurrentVersion(preview.version);
+      }
+      
+      setPreviewData(preview);
+      setCurrentPage(preview.preview.page);
+      setFilesPerPage(preview.preview.per_page);
+      
     } catch (err) {
-      console.error('获取数据集详情失败:', err);
+      console.error('获取数据集预览失败:', err);
       setError(err instanceof Error ? err.message : t('datasets.error'));
     } finally {
       setLoading(false);
     }
   };
+  
+  // 首次加载和版本切换时获取打包信息
+  useEffect(() => {
+    if (dataset) {
+      fetchPackageInfo();
+    }
+  }, [dataset]);
 
   // 获取打包信息
   const fetchPackageInfo = async () => {
@@ -103,29 +121,23 @@ export const DatasetDetailScreen = (): JSX.Element => {
 
   // 处理版本切换
   const handleVersionChange = async (versionId: string) => {
-    if (!id) return;
-    
-    try {
-      const newPreviewData = await enhancedDatasetService.getDatasetPreview(
-        parseInt(id),
-        versionId
-      );
-      setPreviewData(newPreviewData);
-      setCurrentVersion(newPreviewData.version);
-    } catch (err) {
-      console.error('版本切换失败:', err);
-      setError(err instanceof Error ? err.message : t('datasets.error'));
-    }
+    await fetchPreviewPage(1, filesPerPage, versionId);
   };
 
   // 处理数据变更（文件上传、删除等）
   const handleDataChange = () => {
-    // 重新获取当前版本的数据
-    if (currentVersion) {
-      handleVersionChange(currentVersion.id);
-    } else {
-      fetchDatasetDetail();
-    }
+    fetchPreviewPage(currentPage, filesPerPage);
+  };
+
+  // 处理分页变化
+  const handlePageChange = (newPage: number) => {
+    fetchPreviewPage(newPage, filesPerPage);
+  };
+
+  // 处理每页数量变化
+  const handlePerPageChange = (newPerPage: number) => {
+    setFilesPerPage(newPerPage);
+    fetchPreviewPage(1, newPerPage);
   };
 
   // 处理点赞
@@ -218,10 +230,10 @@ export const DatasetDetailScreen = (): JSX.Element => {
   };
 
   useEffect(() => {
-    fetchDatasetDetail();
+    fetchPreviewPage(1, 10);
   }, [id]);
 
-  if (loading) {
+  if (loading && !previewData) { // 在 previewData 为空时才显示全屏加载
     return (
       <div className="w-full max-w-[1200px] p-6">
         <div className="flex items-center justify-center py-12">
@@ -241,7 +253,7 @@ export const DatasetDetailScreen = (): JSX.Element => {
           <Button 
             variant="outline" 
             className="ml-4"
-            onClick={fetchDatasetDetail}
+            onClick={() => fetchPreviewPage(currentPage, filesPerPage)}
           >
             {t('datasets.retry')}
           </Button>
@@ -338,9 +350,12 @@ export const DatasetDetailScreen = (): JSX.Element => {
         <TabsContent value="preview" className="space-y-4">
           <DataPreview 
             data={previewData} 
-            onRefresh={() => fetchDatasetDetail()}
+            isLoading={loading}
+            onRefresh={() => fetchPreviewPage(currentPage, filesPerPage)}
             onVersionChange={handleVersionChange}
             onDataChange={handleDataChange}
+            onPageChange={handlePageChange}
+            onPerPageChange={handlePerPageChange}
           />
         </TabsContent>
 
@@ -380,51 +395,26 @@ export const DatasetDetailScreen = (): JSX.Element => {
                   )}
                 </Button>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{packageInfo.total_files}</div>
-                  <div className="text-sm text-gray-600">{t('datasets.detail.totalFiles')}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{packageInfo.total_files}</p>
+                  <p className="text-sm text-gray-600">{t('datasets.detail.totalFiles')}</p>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{packageInfo.total_size_formatted}</div>
-                  <div className="text-sm text-gray-600">{t('datasets.detail.totalSize')}</div>
+                <div>
+                  <p className="text-2xl font-bold">{packageInfo.total_size_formatted}</p>
+                  <p className="text-sm text-gray-600">{t('datasets.detail.totalSize')}</p>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{packageInfo.estimated_time}</div>
-                  <div className="text-sm text-gray-600">{t('datasets.detail.estimatedTime')}</div>
+                <div>
+                  <p className="text-2xl font-bold">{packageInfo.enhanced_versions}</p>
+                  <p className="text-sm text-gray-600">{t('datasets.detail.enhancedVersions')}</p>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">
-                    {packageInfo.enhanced_versions} {t('datasets.detail.enhancedVersions')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">
-                    {packageInfo.traditional_versions} {t('datasets.detail.traditionalVersions')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">
-                    {packageInfo.raw_data_sources} {t('datasets.detail.rawDataSources')}
-                  </span>
+                <div>
+                  <p className="text-2xl font-bold">{packageInfo.traditional_versions}</p>
+                  <p className="text-sm text-gray-600">{t('datasets.detail.traditionalVersions')}</p>
                 </div>
               </div>
-              
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-2">{t('datasets.detail.packageIncludes')}</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• {t('datasets.detail.allVersionFiles')}</li>
-                  <li>• {t('datasets.detail.datasetMetadata')}</li>
-                  <li>• {t('datasets.detail.readmeDocumentation')}</li>
-                  <li>• {t('datasets.detail.versionHistory')}</li>
-                </ul>
+              <div className="mt-4 text-center text-sm text-gray-500">
+                {t('datasets.detail.estimatedTime')}: {packageInfo.estimated_time}
               </div>
             </Card>
           )}

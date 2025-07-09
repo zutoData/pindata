@@ -10,7 +10,7 @@ export const config = {
   
   // 分页配置
   defaultPageSize: 20,
-  maxPageSize: 100,
+  maxPageSize: 1500,
   
   // 文件上传配置
   maxFileSize: 100 * 1024 * 1024, // 100MB

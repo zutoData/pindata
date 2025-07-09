@@ -361,7 +361,7 @@ export const useSmartDatasetCreatorStore = create<SmartDatasetCreatorState & Sma
         const formatDetails = FORMAT_DETAILS[outputFormat as keyof typeof FORMAT_DETAILS];
         
         if (!currentDatasetType) return '';
-        
+
         // 对于预训练数据清洗，直接返回优化的提示词
         if (datasetType === 'pretraining-data-cleaning') {
           if (isEnglish) {

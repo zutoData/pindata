@@ -36,5 +36,19 @@
   "previewRenderError": "预览渲染错误",
   "unsupportedFileType": "不支持的文件类型",
   "previewDeveloping": "预览功能开发中",
-  "unsupportedPreview": "不支持的预览格式"
+  "unsupportedPreview": "不支持的预览格式",
+  "previous": "上一页",
+  "next": "下一页",
+  "page": "第",
+  "filesPerPage": "每页文件数",
+  "selectFilesPerPage": "选择每页文件数",
+  "annotate": "标注",
+  "checksum": "校验和",
+  "size": "尺寸",
+  "mode": "模式",
+  "entry": "条目",
+  "imagePreviewDeveloping": "图像预览功能开发中",
+  "showing": "显示",
+  "jumpTo": "跳转至",
+  "go": "前往"
 }

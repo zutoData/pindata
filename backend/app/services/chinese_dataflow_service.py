@@ -487,8 +487,8 @@ class ChineseDataFlowService:
         return formatted
     
     def _create_filter_result(self, original_text: str, processed_text: str, status: str, 
-                             message: str, filter_results: Dict, start_time: datetime, 
-                             quality_score: float = 0.0) -> Dict[str, Any]:
+                            message: str, filter_results: Dict, start_time: datetime, 
+                            quality_score: float = 0.0) -> Dict[str, Any]:
         """创建过滤结果 - 返回纯净语料格式"""
         result = {
             'original_text': original_text,

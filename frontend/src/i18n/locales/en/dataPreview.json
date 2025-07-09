@@ -47,5 +47,14 @@
   "createTime": "Create Time",
   "commitMessage": "Commit Message",
   "previewDataMissing": "Preview data missing",
-  "previewRenderError": "Preview render error"
+  "previewRenderError": "Preview render error",
+  "previous": "Previous",
+  "next": "Next",
+  "page": "Page",
+  "filesPerPage": "Files per page",
+  "selectFilesPerPage": "Select files per page",
+  "annotate": "Annotate",
+  "showing": "Showing",
+  "jumpTo": "Jump to",
+  "go": "Go"
 }

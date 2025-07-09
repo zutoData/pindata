@@ -1,3 +1,5 @@
+import { Dataset } from './dataset';
+
 // 版本类型枚举
 export type VersionType = 'major' | 'minor' | 'patch';
 
@@ -40,6 +42,19 @@ export interface DatasetFile {
   preview_data?: PreviewData;
   annotations?: Record<string, any>;
   created_at: string;
+}
+
+export interface EnhancedDatasetFile {
+  id: string;
+  filename: string;
+  file_type: string;
+  file_size: number;
+  file_size_formatted: string;
+  url: string;
+  minio_object_name: string;
+  checksum: string;
+  created_at: string;
+  preview_data?: any;
 }
 
 // 增强版本信息
@@ -112,12 +127,20 @@ export interface FilePreview {
 }
 
 export interface DatasetPreview {
-  dataset: any; // 使用现有的 Dataset 类型
+  dataset: Dataset | null;
   version: EnhancedDatasetVersion | null;
   preview: {
     total_files: number;
-    preview_files: number;
-    files: FilePreview[];
+    file_types: Record<string, number>;
+    files: Array<{
+      file: EnhancedDatasetFile;
+      preview: any;
+    }>;
+    page: number;
+    per_page: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
     message?: string;
   };
 }

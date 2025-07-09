@@ -81,15 +81,23 @@ export class EnhancedDatasetService {
   static async getDatasetPreview(
     datasetId: number,
     versionId?: string,
-    maxItems: number = 10
+    page?: number,
+    pageSize?: number,
   ): Promise<DatasetPreview> {
-    const params: any = { max_items: maxItems };
+    const params: Record<string, any> = {};
+    
     if (versionId) {
       params.version_id = versionId;
     }
-    
+    if (page !== undefined) {
+      params.page = page;
+    }
+    if (pageSize !== undefined) {
+      params.per_page = pageSize;
+    }
+
     const response = await apiClient.get<ApiResponse<DatasetPreview>>(
-      `/api/v1/datasets/${datasetId}/preview`,
+      `/api/v1/enhanced-datasets/${datasetId}/preview`,
       params
     );
     return response.data!;

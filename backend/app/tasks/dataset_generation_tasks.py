@@ -975,101 +975,184 @@ def _generate_generic_data(content: str, model_config: Dict, processing_config: 
         raise
 
 def _generate_pretraining_cleaning_data(content: str, model_config: Dict, processing_config: Dict) -> List[Dict]:
-    """生成预训练数据清洗 - 整个文档一次性处理"""
+    """生成预训练数据清洗 - 将长文档分块处理"""
     try:
         llm_config_id = model_config.get('id')
         llm_config = LLMConfig.query.get(llm_config_id)
         
-        # 检查文档长度并进行智能截断
+        # 获取文档分块大小
         max_doc_length = processing_config.get('maxDocumentLength', 50000)
         original_length = len(content)
         
+        # 将文档分成多个块进行处理
+        chunks = []
         if original_length > max_doc_length:
-            logger.info(f"文档长度 {original_length} 超过最大限制 {max_doc_length}，进行智能截断")
-            content = _smart_truncate_document(content, max_doc_length)
-            logger.info(f"截断后文档长度: {len(content)}")
+            logger.info(f"文档长度 {original_length} 超过最大限制 {max_doc_length}，将分成多个块处理")
+            
+            # 将文档分成多个块
+            current_pos = 0
+            chunk_index = 0
+            
+            while current_pos < original_length:
+                # 计算当前块的结束位置
+                end_pos = min(current_pos + max_doc_length, original_length)
+                
+                # 如果不是最后一块，尝试在合适的位置切分
+                if end_pos < original_length:
+                    # 尝试在段落边界切分
+                    chunk_content = content[current_pos:end_pos]
+                    # 找到最后一个段落结束位置
+                    last_paragraph = chunk_content.rfind('\n\n')
+                    if last_paragraph > max_doc_length * 0.5:  # 确保块不会太小
+                        end_pos = current_pos + last_paragraph + 2
+                    else:
+                        # 尝试在句子边界切分
+                        sentence_endings = ['。', '！', '？', '.', '!', '?']
+                        for i in range(len(chunk_content) - 1, int(max_doc_length * 0.5), -1):
+                            if chunk_content[i] in sentence_endings:
+                                end_pos = current_pos + i + 1
+                                break
+                
+                chunk_text = content[current_pos:end_pos]
+                chunks.append({
+                    'text': chunk_text,
+                    'chunk_index': chunk_index,
+                    'start_pos': current_pos,
+                    'end_pos': end_pos
+                })
+                
+                current_pos = end_pos
+                chunk_index += 1
+            
+            logger.info(f"文档分成了 {len(chunks)} 个块")
+        else:
+            # 文档长度未超过限制，作为单个块处理
+            chunks = [{
+                'text': content,
+                'chunk_index': 0,
+                'start_pos': 0,
+                'end_pos': original_length
+            }]
+            logger.info(f"文档长度 {original_length} 未超过限制，作为单个块处理")
         
-        # 预训练数据清洗不应该分块处理，整个文档一次性处理
-        logger.info(f"开始预训练数据清洗，文档长度: {len(content)} 字符")
-        
+        # 处理每个块
         cleaned_data = []
+        successful_chunks = 0
+        failed_chunks = 0
         
-        try:
-            if llm_config:
-                # 使用自定义提示词或默认清洗提示词
-                custom_prompt = processing_config.get('custom_prompt', '')
-                if custom_prompt:
-                    prompt = _build_custom_prompt_for_chunk(content, custom_prompt, processing_config)
-                else:
-                    # 使用默认的清洗提示词
-                    prompt = _build_pretraining_cleaning_prompt(content, processing_config)
-                
-                # 调用LLM进行整个文档的清洗
-                response = llm_conversion_service.call_llm(llm_config, prompt)
-                
-                # 解析清洗结果
-                cleaned_segments = _parse_pretraining_cleaning_response(response, 0)
-                if cleaned_segments:
-                    # 添加截断信息到结果中
-                    for segment in cleaned_segments:
-                        segment['original_length'] = original_length
-                        segment['truncated'] = original_length > max_doc_length
-                        segment['max_length'] = max_doc_length
+        for chunk_info in chunks:
+            chunk_text = chunk_info['text']
+            chunk_index = chunk_info['chunk_index']
+            
+            logger.info(f"处理块 {chunk_index + 1}/{len(chunks)}，长度: {len(chunk_text)} 字符")
+            
+            try:
+                if llm_config:
+                    # 使用自定义提示词或默认清洗提示词
+                    custom_prompt = processing_config.get('custom_prompt', '')
+                    if custom_prompt:
+                        prompt = _build_custom_prompt_for_chunk(chunk_text, custom_prompt, processing_config)
+                    else:
+                        # 使用默认的清洗提示词
+                        prompt = _build_pretraining_cleaning_prompt(chunk_text, processing_config)
                     
-                    cleaned_data.extend(cleaned_segments)
-                    logger.info(f"LLM清洗成功，提取了 {len(cleaned_segments)} 个语料片段")
+                    # 调用LLM进行清洗
+                    response = llm_conversion_service.call_llm(llm_config, prompt)
+                    
+                    # 解析清洗结果
+                    cleaned_segments = _parse_pretraining_cleaning_response(response, chunk_index)
+                    if cleaned_segments:
+                        # 添加块信息到结果中
+                        for segment in cleaned_segments:
+                            segment['original_length'] = original_length
+                            segment['chunk_info'] = {
+                                'chunk_index': chunk_index,
+                                'total_chunks': len(chunks),
+                                'start_pos': chunk_info['start_pos'],
+                                'end_pos': chunk_info['end_pos']
+                            }
+                        
+                        cleaned_data.extend(cleaned_segments)
+                        successful_chunks += 1
+                        logger.info(f"块 {chunk_index + 1} LLM清洗成功，提取了 {len(cleaned_segments)} 个语料片段")
+                    else:
+                        # 如果LLM清洗失败，回退到基础清洗
+                        logger.warning(f"块 {chunk_index + 1} LLM清洗失败，使用基础清洗")
+                        basic_cleaned = _basic_text_cleaning(chunk_text, chunk_index)
+                        # 添加块信息
+                        for segment in basic_cleaned:
+                            segment['original_length'] = original_length
+                            segment['chunk_info'] = {
+                                'chunk_index': chunk_index,
+                                'total_chunks': len(chunks),
+                                'start_pos': chunk_info['start_pos'],
+                                'end_pos': chunk_info['end_pos']
+                            }
+                        cleaned_data.extend(basic_cleaned)
+                        successful_chunks += 1
                 else:
-                    # 如果LLM清洗失败，回退到基础清洗
-                    logger.warning("LLM清洗失败，使用基础清洗")
-                    basic_cleaned = _basic_text_cleaning(content, 0)
-                    # 添加截断信息
+                    # 如果没有LLM配置，使用基础清洗
+                    logger.info(f"块 {chunk_index + 1} 没有LLM配置，使用基础清洗")
+                    basic_cleaned = _basic_text_cleaning(chunk_text, chunk_index)
+                    # 添加块信息
                     for segment in basic_cleaned:
                         segment['original_length'] = original_length
-                        segment['truncated'] = original_length > max_doc_length
-                        segment['max_length'] = max_doc_length
+                        segment['chunk_info'] = {
+                            'chunk_index': chunk_index,
+                            'total_chunks': len(chunks),
+                            'start_pos': chunk_info['start_pos'],
+                            'end_pos': chunk_info['end_pos']
+                        }
                     cleaned_data.extend(basic_cleaned)
-            else:
-                # 如果没有LLM配置，使用基础清洗
-                logger.info("没有LLM配置，使用基础清洗")
-                basic_cleaned = _basic_text_cleaning(content, 0)
-                # 添加截断信息
-                for segment in basic_cleaned:
-                    segment['original_length'] = original_length
-                    segment['truncated'] = original_length > max_doc_length
-                    segment['max_length'] = max_doc_length
-                cleaned_data.extend(basic_cleaned)
+                    successful_chunks += 1
                 
-        except Exception as e:
-            logger.warning(f"预训练数据清洗失败: {str(e)}")
-            # 回退到基础清洗
-            try:
-                basic_cleaned = _basic_text_cleaning(content, 0)
-                # 添加截断信息
-                for segment in basic_cleaned:
-                    segment['original_length'] = original_length
-                    segment['truncated'] = original_length > max_doc_length
-                    segment['max_length'] = max_doc_length
-                cleaned_data.extend(basic_cleaned)
-                logger.info("回退到基础清洗成功")
-            except Exception as basic_error:
-                logger.error(f"基础清洗也失败: {str(basic_error)}")
-                # 最后的回退：保留原文本但做最小处理
-                if content.strip():
-                    cleaned_data.append({
-                        'id': 'doc_1',
-                        'text': content.strip(),
-                        'source': 'fallback',
-                        'type': 'raw_text',
-                        'length': len(content.strip()),
-                        'chunk_index': 0,
-                        'segment_index': 0,
-                        'quality_score': 0.5,
-                        'original_length': original_length,
-                        'truncated': original_length > max_doc_length,
-                        'max_length': max_doc_length
-                    })
+            except Exception as e:
+                failed_chunks += 1
+                logger.warning(f"块 {chunk_index + 1} 预训练数据清洗失败: {str(e)}")
+                # 回退到基础清洗
+                try:
+                    basic_cleaned = _basic_text_cleaning(chunk_text, chunk_index)
+                    # 添加块信息
+                    for segment in basic_cleaned:
+                        segment['original_length'] = original_length
+                        segment['chunk_info'] = {
+                            'chunk_index': chunk_index,
+                            'total_chunks': len(chunks),
+                            'start_pos': chunk_info['start_pos'],
+                            'end_pos': chunk_info['end_pos']
+                        }
+                    cleaned_data.extend(basic_cleaned)
+                    successful_chunks += 1
+                    logger.info(f"块 {chunk_index + 1} 回退到基础清洗成功")
+                except Exception as basic_error:
+                    logger.error(f"块 {chunk_index + 1} 基础清洗也失败: {str(basic_error)}")
+                    # 最后的回退：保留原文本但做最小处理
+                    if chunk_text.strip():
+                        cleaned_data.append({
+                            'id': f'doc_{chunk_index + 1}',
+                            'text': chunk_text.strip(),
+                            'source': 'fallback',
+                            'type': 'raw_text',
+                            'length': len(chunk_text.strip()),
+                            'chunk_index': chunk_index,
+                            'segment_index': 0,
+                            'quality_score': 0.5,
+                            'original_length': original_length,
+                            'chunk_info': {
+                                'chunk_index': chunk_index,
+                                'total_chunks': len(chunks),
+                                'start_pos': chunk_info['start_pos'],
+                                'end_pos': chunk_info['end_pos']
+                            }
+                        })
+                        successful_chunks += 1
         
-        logger.info(f"预训练数据清洗完成，总共生成 {len(cleaned_data)} 个语料片段")
+        # 计算成功率
+        total_chunks = len(chunks)
+        success_rate = (successful_chunks / total_chunks) * 100 if total_chunks > 0 else 0
+        
+        logger.info(f"预训练数据清洗完成 - 总块数: {total_chunks}, 成功: {successful_chunks}, 失败: {failed_chunks}")
+        logger.info(f"成功率: {success_rate:.1f}%, 总共生成 {len(cleaned_data)} 个语料片段")
         
         if not cleaned_data or len(cleaned_data) == 0:
             raise Exception("未生成任何清洗数据，请检查内容或配置")

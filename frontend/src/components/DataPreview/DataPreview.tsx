@@ -61,7 +61,8 @@ import {
   GitBranch,
   RefreshCw,
   ChevronDownIcon,
-  MessageSquareIcon
+  MessageSquareIcon,
+  Loader2Icon
 } from 'lucide-react';
 import { enhancedDatasetService } from '../../services/enhanced-dataset.service';
 import { DatasetPreview as DatasetPreviewType, EnhancedDatasetVersion } from '../../types/enhanced-dataset';
@@ -69,18 +70,24 @@ import { MediaAnnotationContainer } from '../DataAnnotation/MediaAnnotationConta
 
 interface DataPreviewProps {
   data: DatasetPreviewType;
+  isLoading: boolean;
   onRefresh?: () => void;
   onDataChange?: () => void;
   onVersionChange?: (versionId: string) => void;
+  onPageChange?: (page: number) => void;
+  onPerPageChange?: (perPage: number) => void;
 }
 
 export type { DataPreviewProps };
 
 export const DataPreview: React.FC<DataPreviewProps> = ({ 
   data, 
+  isLoading,
   onRefresh,
   onDataChange,
-  onVersionChange 
+  onVersionChange,
+  onPageChange,
+  onPerPageChange
 }) => {
   const { t } = useTranslation();
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
@@ -98,6 +105,15 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
     type: 'image' | 'video';
     url: string;
   } | null>(null);
+  const [jumpToPage, setJumpToPage] = useState('');
+
+  // 从 props 获取分页信息
+  const { 
+    page: currentPage, 
+    total_pages: totalPages, 
+    total_files: totalFiles,
+    per_page: filesPerPage
+  } = data.preview;
 
   // 获取可用版本列表
   useEffect(() => {
@@ -108,7 +124,6 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
 
   // 版本切换时重置相关状态
   useEffect(() => {
-    // 当数据发生变化（版本切换后），重置选中状态和过滤条件
     setSelectedFiles(new Set());
     setFilterType('all');
     setVersionChangeError(null);
@@ -129,6 +144,39 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
     }
   }, [isVersionSelectorOpen]);
 
+  // 计算过滤后的文件
+  const filteredFiles = data.preview.files.filter(filePreview => {
+    if (filterType === 'all') return true;
+    return filePreview.file.file_type === filterType;
+  });
+
+  // 分页控制函数
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages && onPageChange) {
+      onPageChange(page);
+    }
+  };
+
+  const handleFilesPerPageChange = (newFilesPerPage: string) => {
+    if (onPerPageChange) {
+      onPerPageChange(parseInt(newFilesPerPage));
+    }
+  };
+  
+  const handleJumpToPage = () => {
+    const pageNum = parseInt(jumpToPage);
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      handlePageChange(pageNum);
+      setJumpToPage('');
+    }
+  };
+
+  const handleJumpInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleJumpToPage();
+    }
+  };
+
   const loadAvailableVersions = async () => {
     if (!data.dataset?.id) return;
     
@@ -145,7 +193,6 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
 
   const handleVersionChange = async (versionId: string) => {
     if (versionId === data.version?.id) {
-      // 如果选择的是当前版本，直接关闭选择器
       setIsVersionSelectorOpen(false);
       return;
     }
@@ -155,7 +202,6 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
       setVersionChangeError(null);
       setIsVersionSelectorOpen(false);
       
-      // 调用父组件的版本切换函数
       await onVersionChange?.(versionId);
       
     } catch (error) {
@@ -179,7 +225,6 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
       await enhancedDatasetService.downloadDatasetFile(objectName, filename);
     } catch (error) {
       console.error('下载文件失败:', error);
-      // 这里可以添加错误提示
     }
   };
 
@@ -194,11 +239,16 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
   };
 
   const handleSelectAll = () => {
-    if (selectedFiles.size === data.preview.files.length) {
-      setSelectedFiles(new Set());
+    const currentPageFileIds = filteredFiles.map(f => f.file.id);
+    const allCurrentPageSelected = currentPageFileIds.every(id => selectedFiles.has(id));
+    
+    const newSelected = new Set(selectedFiles);
+    if (allCurrentPageSelected) {
+      currentPageFileIds.forEach(id => newSelected.delete(id));
     } else {
-      setSelectedFiles(new Set(data.preview.files.map(f => f.file.id)));
+      currentPageFileIds.forEach(id => newSelected.add(id));
     }
+    setSelectedFiles(newSelected);
   };
 
   const handleBatchDelete = async () => {
@@ -243,12 +293,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
     }
   };
 
-  const filteredFiles = data.preview.files.filter(filePreview => {
-    if (filterType === 'all') return true;
-    return filePreview.file.file_type === filterType;
-  });
-
-  const fileTypes = [...new Set(data.preview.files.map(f => f.file.file_type))];
+  const fileTypes = [...new Set(data.preview.file_types ? Object.keys(data.preview.file_types) : [])];
 
   const renderPreviewContent = (filePreview: any) => {
     const { file, preview } = filePreview;
@@ -518,7 +563,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
     );
   };
 
-  if (!data.preview || !data.preview.files || data.preview.files.length === 0) {
+  if (!data.preview || totalFiles === 0) {
     return (
       <Card className="p-6">
         <div className="text-center py-8 text-gray-500">
@@ -555,6 +600,9 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
           <div>
             <h3 className="text-lg font-semibold mb-2">{t('dataPreview.title')}</h3>
             <div className="space-y-1">
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <span>{t('dataPreview.totalFiles')}: {data.preview.total_files}</span>
+              </div>
               <p className="text-sm text-gray-600">
                 {t('dataPreview.dataset')}: {data.dataset?.name}
               </p>
@@ -691,8 +739,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
               </div>
               
               <p className="text-sm text-gray-600">
-                {t('dataPreview.totalFiles')}: {data.preview.total_files} | 
-                {t('dataPreview.previewFiles')}: {data.preview.preview_files}
+                {t('dataPreview.totalFiles')}: {data.preview.total_files}
               </p>
               
               {/* 版本切换错误提示 */}
@@ -731,7 +778,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             {onRefresh && (
               <Button variant="outline" size="sm" onClick={onRefresh}>
                 <EyeIcon className="w-4 h-4 mr-2" />
@@ -774,7 +821,10 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
             {/* 全选/取消全选 */}
             <div className="flex items-center gap-2">
               <Checkbox
-                checked={selectedFiles.size === filteredFiles.length && filteredFiles.length > 0}
+                checked={(() => {
+                  const currentPageFileIds = filteredFiles.map(f => f.file.id);
+                  return currentPageFileIds.length > 0 && currentPageFileIds.every(id => selectedFiles.has(id));
+                })()}
                 onCheckedChange={handleSelectAll}
               />
               <span className="text-sm">
@@ -821,48 +871,141 @@ export const DataPreview: React.FC<DataPreviewProps> = ({
       </Card>
 
       {/* 文件预览列表 */}
-      {filteredFiles.map((filePreview, index) => {
-        const isUnsupported = filePreview.preview?.type === 'unsupported' || 
-                              filePreview.preview?.type === 'error';
-        
-        return (
-          <Card key={filePreview.file.id} className={`${isUnsupported ? 'p-4' : 'p-6'}`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={selectedFiles.has(filePreview.file.id)}
-                  onCheckedChange={() => handleFileSelect(filePreview.file.id)}
-                />
-                {getFileTypeIcon(filePreview.file.file_type)}
-                <div>
-                  <h4 className="font-medium">{filePreview.file.filename}</h4>
-                  <p className="text-sm text-gray-600">
-                    {filePreview.file.file_type} · {filePreview.file.file_size_formatted}
-                  </p>
-                  {filePreview.file.checksum && (
-                    <p className="text-xs text-gray-400 font-mono">
-                      {t('dataPreview.checksum')}: {filePreview.file.checksum.slice(0, 8)}...
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2Icon className="w-6 h-6 animate-spin mr-2" />
+          <span>{t('dataPreview.loading')}...</span>
+        </div>
+      ) : (
+        filteredFiles.map((filePreview, index) => {
+          const isUnsupported = filePreview.preview?.type === 'unsupported' || 
+                                filePreview.preview?.type === 'error';
+          
+          return (
+            <Card key={filePreview.file.id} className={`${isUnsupported ? 'p-4' : 'p-6'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedFiles.has(filePreview.file.id)}
+                    onCheckedChange={() => handleFileSelect(filePreview.file.id)}
+                  />
+                  {getFileTypeIcon(filePreview.file.file_type)}
+                  <div>
+                    <h4 className="font-medium">{filePreview.file.filename}</h4>
+                    <p className="text-sm text-gray-600">
+                      {filePreview.file.file_type} · {filePreview.file.file_size_formatted}
                     </p>
-                  )}
-                  {isUnsupported && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {filePreview.preview?.message || t('dataPreview.unsupportedFileType')}
-                    </p>
-                  )}
+                    {filePreview.file.checksum && (
+                      <p className="text-xs text-gray-400 font-mono">
+                        {t('dataPreview.checksum')}: {filePreview.file.checksum.slice(0, 8)}...
+                      </p>
+                    )}
+                    {isUnsupported && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {filePreview.preview?.message || t('dataPreview.unsupportedFileType')}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                {renderFileActions(filePreview)}
               </div>
-              {renderFileActions(filePreview)}
-            </div>
 
-            {/* 只有支持的文件类型才显示预览内容 */}
-            {!isUnsupported && (
-              <div className="mt-4">
-                {renderPreviewContent(filePreview)}
+              {/* 只有支持的文件类型才显示预览内容 */}
+              {!isUnsupported && (
+                <div className="mt-4">
+                  {renderPreviewContent(filePreview)}
+                </div>
+              )}
+            </Card>
+          );
+        })
+      )}
+
+      {/* 分页导航 */}
+      {totalFiles > 0 && (
+        <Card className="mt-6 p-4">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+            {/* 文件信息显示 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {t('dataPreview.showing')} {((currentPage - 1) * filesPerPage) + 1}-{Math.min(currentPage * filesPerPage, totalFiles)} / {totalFiles} {t('dataPreview.files')}
+              </span>
+            </div>
+            
+            {/* 分页控制区域 */}
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              {/* 基础分页控制 */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="min-w-16"
+                >
+                  {t('dataPreview.previous')}
+                </Button>
+                
+                <span className="text-sm text-gray-600 px-3 min-w-20 text-center">
+                  {t('dataPreview.page')} {currentPage} / {totalPages}
+                </span>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="min-w-16"
+                >
+                  {t('dataPreview.next')}
+                </Button>
               </div>
-            )}
-          </Card>
-        );
-      })}
+              
+              {/* 跳转到指定页 - 总是显示 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">{t('dataPreview.jumpTo')}:</span>
+                <Input
+                  type="number"
+                  value={jumpToPage}
+                  onChange={(e) => setJumpToPage(e.target.value)}
+                  onKeyPress={handleJumpInputKeyPress}
+                  placeholder="页码"
+                  className="w-16 h-8 text-sm text-center"
+                  min="1"
+                  max={totalPages}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleJumpToPage}
+                  disabled={!jumpToPage || parseInt(jumpToPage) < 1 || parseInt(jumpToPage) > totalPages}
+                  className="min-w-12"
+                >
+                  {t('dataPreview.go')}
+                </Button>
+              </div>
+            </div>
+            
+            {/* 每页文件数设置 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">{t('dataPreview.filesPerPage')}:</span>
+              <Select value={filesPerPage.toString()} onValueChange={handleFilesPerPageChange}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
+      )}
+
+
 
       {/* 版本信息卡片 */}
       {data.version && (

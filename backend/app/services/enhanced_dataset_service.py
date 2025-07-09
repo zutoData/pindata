@@ -251,80 +251,84 @@ class EnhancedDatasetService:
             return ''
     
     @staticmethod
-    def get_dataset_preview(dataset_id: int, version_id: Optional[str] = None, max_items: int = 10) -> Dict[str, Any]:
-        """获取数据集预览"""
-        try:
-            dataset = Dataset.query.get_or_404(dataset_id)
+    def get_dataset_preview(
+        dataset_id: int, 
+        version_id: Optional[str] = None,
+        page: int = 1,
+        per_page: int = 10
+    ) -> Dict[str, Any]:
+        """
+        获取数据集的预览信息
+        
+        Args:
+            dataset_id: 数据集ID
+            version_id: 版本ID
+            page: 页码
+            per_page: 每页数量
             
-            # 获取指定版本或默认版本
-            if version_id:
-                version = EnhancedDatasetVersion.query.get_or_404(version_id)
-            else:
-                version = EnhancedDatasetVersion.query.filter_by(
-                    dataset_id=dataset_id,
-                    is_default=True
-                ).first()
-                
-                if not version:
-                    version = EnhancedDatasetVersion.query.filter_by(
-                        dataset_id=dataset_id
-                    ).order_by(EnhancedDatasetVersion.created_at.desc()).first()
-            
-            if not version:
-                return {
-                    'dataset': dataset.to_dict(),
-                    'version': None,
-                    'preview': {
-                        'message': '数据集暂无版本',
-                        'total_files': 0,
-                        'preview_files': 0,
-                        'files': []
-                    }
-                }
-            
-            # 获取文件预览
-            file_previews = []
-            for file in version.files[:max_items]:
-                if file.preview_data:
-                    # 使用缓存的预览数据
-                    file_previews.append({
-                        'file': file.to_dict(),
-                        'preview': file.preview_data
-                    })
-                else:
-                    # 生成新的预览数据
-                    try:
-                        preview_data = DataPreviewService.generate_preview(file, max_items=5)
-                        DataPreviewService.save_preview_data(file, preview_data)
-                        file_previews.append({
-                            'file': file.to_dict(),
-                            'preview': preview_data
-                        })
-                    except Exception as e:
-                        logger.warning(f"生成文件预览失败: {str(e)}")
-                        file_previews.append({
-                            'file': file.to_dict(),
-                            'preview': {
-                                'type': 'error',
-                                'message': f'预览生成失败: {str(e)}',
-                                'items': []
-                            }
-                        })
-            
-            return {
-                'dataset': dataset.to_dict(),
-                'version': version.to_dict(),
-                'preview': {
-                    'total_files': version.file_count,
-                    'preview_files': len(file_previews),
-                    'files': file_previews
-                }
-            }
-            
-        except Exception as e:
-            logger.error(f"获取数据集预览失败: {str(e)}")
-            raise
+        Returns:
+            预览数据字典
+        """
+        if not dataset_id:
+            raise ValueError("数据集ID不能为空")
 
+        dataset = Dataset.query.get_or_404(dataset_id)
+        
+        if version_id:
+            version = EnhancedDatasetVersion.query.filter_by(id=version_id, dataset_id=dataset_id).first_or_404()
+        else:
+            version = EnhancedDatasetVersion.query.filter_by(dataset_id=dataset_id, is_default=True).first()
+            if not version:
+                version = EnhancedDatasetVersion.query.filter_by(dataset_id=dataset_id).order_by(
+                    EnhancedDatasetVersion.created_at.desc()
+                ).first_or_404()
+        
+        # 获取文件列表 (分页)
+        files_query = EnhancedDatasetFile.query.filter_by(version_id=version.id).order_by(EnhancedDatasetFile.created_at.desc())
+        
+        pagination = files_query.paginate(page=page, per_page=per_page, error_out=False)
+        preview_files = pagination.items
+
+        # 按文件类型分组统计
+        type_stats_query = db.session.query(
+            EnhancedDatasetFile.file_type,
+            db.func.count(EnhancedDatasetFile.id).label('count')
+        ).filter_by(version_id=version.id).group_by(EnhancedDatasetFile.file_type)
+        
+        type_stats = type_stats_query.all()
+        type_stats_dict = {row.file_type: row.count for row in type_stats}
+        
+        previews = []
+        for file in preview_files:
+            try:
+                preview_content = EnhancedDatasetService.get_file_preview(file)
+                previews.append({
+                    "file": file.to_dict(),
+                    "preview": preview_content
+                })
+            except Exception as e:
+                logger.error(f"生成文件 {file.id} 预览失败: {e}")
+                previews.append({
+                    "file": file.to_dict(),
+                    "preview": {"type": "error", "message": "生成预览失败"}
+                })
+        
+        return {
+            "dataset": dataset.to_dict(),
+            "version": version.to_dict(),
+            "preview": {
+                "total_files": pagination.total,
+                "file_types": type_stats_dict,
+                "files": previews,
+                "page": pagination.page,
+                "per_page": pagination.per_page,
+                "total_pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev,
+                "message": f"显示 {len(previews)} of {pagination.total} 文件预览"
+            }
+        }
+    
     @staticmethod
     def add_files_to_version(version_id: str, files: List[FileStorage]) -> Dict[str, Any]:
         """

@@ -29,7 +29,7 @@ class LibraryUpdateSchema(Schema):
 class LibraryQuerySchema(Schema):
     """文件库查询参数验证模式"""
     page = fields.Int(missing=1, validate=validate.Range(min=1))
-    per_page = fields.Int(missing=20, validate=validate.Range(min=1, max=100))
+    per_page = fields.Int(missing=20, validate=validate.Range(min=1, max=1500))
     name = fields.Str(missing=None)
     data_type = fields.Str(missing=None, validate=validate.OneOf(['training', 'evaluation', 'mixed']))
     tags = fields.List(fields.Str(), missing=[])
@@ -45,7 +45,7 @@ class LibraryFileUploadSchema(Schema):
 class LibraryFileQuerySchema(Schema):
     """文件查询参数验证模式"""
     page = fields.Int(missing=1, validate=validate.Range(min=1))
-    per_page = fields.Int(missing=20, validate=validate.Range(min=1, max=100))
+    per_page = fields.Int(missing=20, validate=validate.Range(min=1, max=1500))
     filename = fields.Str(missing=None)
     file_type = fields.Str(missing=None)
     process_status = fields.Str(missing=None, validate=validate.OneOf([

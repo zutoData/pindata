@@ -19,7 +19,7 @@ export class FileService {
   static async getLibraries(): Promise<Library[]> {
     try {
       const response = await apiClient.get<PaginatedResponse<Library>>('/api/v1/libraries', {
-        per_page: 100 // 修改为API允许的最大值
+        per_page: 1500 // 修改为支持更多数据集合
       });
       return response.data || [];
     } catch (error) {
@@ -35,7 +35,7 @@ export class FileService {
     try {
       const response = await apiClient.get<PaginatedResponse<LibraryFile>>(`/api/v1/libraries/${libraryId}/files`, {
         process_status: 'completed',
-        per_page: 100 // 修改为API允许的最大值
+        per_page: 1500 // 修改为支持更多文件
       });
       
       // 过滤出已转换为markdown的文件

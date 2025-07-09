@@ -447,92 +447,92 @@ export const Step3ModelConfig: React.FC = () => {
 
       {/* 文档分片配置 - 预训练数据清洗不需要分块 */}
       {datasetType !== 'pretraining-data-cleaning' && (
-        <Card className="border-[#d1dbe8]">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <LayersIcon className="w-6 h-6 text-[#1977e5]" />
-              <h3 className="text-lg font-semibold text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.title')}</h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-[#0c141c] mb-2">{t('smartDatasetCreator.step3.chunkSettings.chunkSize')}</label>
-                <Input
-                  type="number"
-                  className="border-[#d1dbe8]"
-                  value={processingConfig.chunkSize}
-                  onChange={(e) => setProcessingConfig({ chunkSize: parseInt(e.target.value) || 1000 })}
-                  min="100"
-                  max="4000"
-                />
-                <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.chunkSizeDesc')}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#0c141c] mb-2">{t('smartDatasetCreator.step3.chunkSettings.chunkOverlap')}</label>
-                <Input
-                  type="number"
-                  className="border-[#d1dbe8]"
-                  value={processingConfig.chunkOverlap}
-                  onChange={(e) => setProcessingConfig({ chunkOverlap: parseInt(e.target.value) || 200 })}
-                  min="0"
-                  max="500"
-                />
-                <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.chunkOverlapDesc')}</p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.preserveStructure')}</label>
-                  <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.preserveStructureDesc')}</p>
-                </div>
-                <Switch
-                  checked={processingConfig.preserveStructure}
-                  onCheckedChange={(checked) => setProcessingConfig({ preserveStructure: checked })}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.splitByHeaders')}</label>
-                  <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.splitByHeadersDesc')}</p>
-                </div>
-                <Switch
-                  checked={processingConfig.splitByHeaders}
-                  onCheckedChange={(checked) => setProcessingConfig({ splitByHeaders: checked })}
-                />
-              </div>
-            </div>
-
-            {/* 分片预览 */}
-            {selectedFiles.length > 0 && (
-              <div className="mt-6 p-4 bg-[#f8fbff] border border-[#e3f2fd] rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <FileTextIcon className="w-4 h-4 text-[#1977e5]" />
-                  <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.chunkPreview')}</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.fileCount')}: </span>
-                    <span className="font-medium">{selectedFiles.length}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.chunkSizeLabel')}: </span>
-                    <span className="font-medium">{processingConfig.chunkSize}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.overlapSize')}: </span>
-                    <span className="font-medium">{processingConfig.chunkOverlap}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.estimatedChunks')}: </span>
-                    <span className="font-medium">~{Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize)}</span>
-                  </div>
-                </div>
-              </div>
-            )}
+      <Card className="border-[#d1dbe8]">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <LayersIcon className="w-6 h-6 text-[#1977e5]" />
+            <h3 className="text-lg font-semibold text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.title')}</h3>
           </div>
-        </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-[#0c141c] mb-2">{t('smartDatasetCreator.step3.chunkSettings.chunkSize')}</label>
+              <Input
+                type="number"
+                className="border-[#d1dbe8]"
+                value={processingConfig.chunkSize}
+                onChange={(e) => setProcessingConfig({ chunkSize: parseInt(e.target.value) || 1000 })}
+                min="100"
+                max="4000"
+              />
+              <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.chunkSizeDesc')}</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#0c141c] mb-2">{t('smartDatasetCreator.step3.chunkSettings.chunkOverlap')}</label>
+              <Input
+                type="number"
+                className="border-[#d1dbe8]"
+                value={processingConfig.chunkOverlap}
+                onChange={(e) => setProcessingConfig({ chunkOverlap: parseInt(e.target.value) || 200 })}
+                min="0"
+                max="500"
+              />
+              <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.chunkOverlapDesc')}</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.preserveStructure')}</label>
+                <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.preserveStructureDesc')}</p>
+              </div>
+              <Switch
+                checked={processingConfig.preserveStructure}
+                onCheckedChange={(checked) => setProcessingConfig({ preserveStructure: checked })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.splitByHeaders')}</label>
+                <p className="text-xs text-[#4f7096] mt-1">{t('smartDatasetCreator.step3.chunkSettings.splitByHeadersDesc')}</p>
+              </div>
+              <Switch
+                checked={processingConfig.splitByHeaders}
+                onCheckedChange={(checked) => setProcessingConfig({ splitByHeaders: checked })}
+              />
+            </div>
+          </div>
+
+          {/* 分片预览 */}
+          {selectedFiles.length > 0 && (
+            <div className="mt-6 p-4 bg-[#f8fbff] border border-[#e3f2fd] rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <FileTextIcon className="w-4 h-4 text-[#1977e5]" />
+                <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step3.chunkSettings.chunkPreview')}</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.fileCount')}: </span>
+                  <span className="font-medium">{selectedFiles.length}</span>
+                </div>
+                <div>
+                  <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.chunkSizeLabel')}: </span>
+                  <span className="font-medium">{processingConfig.chunkSize}</span>
+                </div>
+                <div>
+                  <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.overlapSize')}: </span>
+                  <span className="font-medium">{processingConfig.chunkOverlap}</span>
+                </div>
+                <div>
+                  <span className="text-[#4f7096]">{t('smartDatasetCreator.step3.chunkSettings.estimatedChunks')}: </span>
+                  <span className="font-medium">~{Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
       )}
 
       {/* 预训练数据清洗说明 */}

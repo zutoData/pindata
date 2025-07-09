@@ -47,5 +47,14 @@
   "createTime": "作成時間",
   "commitMessage": "コミットメッセージ",
   "previewDataMissing": "プレビューデータが見つかりません",
-  "previewRenderError": "プレビューレンダリングエラー"
+  "previewRenderError": "プレビューレンダリングエラー",
+  "previous": "前のページ",
+  "next": "次のページ",
+  "page": "ページ",
+  "filesPerPage": "ページあたりのファイル数",
+  "selectFilesPerPage": "ページあたりのファイル数を選択",
+  "annotate": "アノテーション",
+  "showing": "表示中",
+  "jumpTo": "ジャンプ先",
+  "go": "移動"
 }
