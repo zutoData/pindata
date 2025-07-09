@@ -1,15 +1,22 @@
-from flask import jsonify, request
+from flask import jsonify, request, send_file
 from flasgger import swag_from
 from sqlalchemy import desc, asc, or_, func
 from marshmallow import ValidationError
 import logging
+import os
+import tempfile
+import zipfile
+from datetime import datetime
 from app.api.v1 import api_v1
 from app.models.dataset import Dataset, DatasetVersion, DatasetTag, DatasetLike, DatasetDownload
+from app.models.dataset_version import EnhancedDatasetVersion, EnhancedDatasetFile
+from app.models.raw_data import RawData
 from app.api.v1.schemas.dataset_schemas import (
     DatasetCreateSchema, DatasetUpdateSchema, DatasetQuerySchema,
     DatasetVersionCreateSchema, DatasetResponseSchema, DatasetDetailResponseSchema
 )
 from app.db import db
+from app.services.storage_service import storage_service
 
 logger = logging.getLogger(__name__)
 
@@ -352,6 +359,89 @@ def download_dataset(dataset_id):
         'downloads': dataset.downloads,
         'download_url': f'/api/v1/datasets/{dataset_id}/files'  # 实际文件下载链接
     })
+
+
+@api_v1.route('/datasets/<int:dataset_id>/package-download', methods=['POST'])
+@swag_from({
+    'tags': ['数据集'],
+    'summary': '打包下载数据集',
+    'parameters': [{
+        'name': 'dataset_id',
+        'in': 'path',
+        'type': 'integer',
+        'required': True,
+        'description': '数据集ID'
+    }],
+    'responses': {
+        200: {'description': '打包下载成功'},
+        404: {'description': '数据集不存在'},
+        500: {'description': '打包失败'}
+    }
+})
+def package_download_dataset(dataset_id):
+    """打包下载数据集"""
+    from app.services.dataset_package_service import DatasetPackageService
+    
+    package_service = DatasetPackageService()
+    
+    try:
+        # 使用打包服务创建数据集包
+        zip_path = package_service.create_dataset_package(
+            dataset_id=dataset_id,
+            user_ip=request.remote_addr,
+            user_agent=request.headers.get('User-Agent', '')
+        )
+        
+        # 获取数据集信息用于文件名
+        dataset = Dataset.query.get_or_404(dataset_id)
+        safe_filename = package_service._safe_filename(f"{dataset.owner}_{dataset.name}_{dataset_id}.zip")
+        
+        # 返回ZIP文件
+        return send_file(
+            zip_path,
+            as_attachment=True,
+            download_name=safe_filename,
+            mimetype='application/zip'
+        )
+        
+    except Exception as e:
+        logger.error(f"打包下载数据集 {dataset_id} 失败: {str(e)}")
+        return jsonify({'error': '打包下载失败', 'details': str(e)}), 500
+    
+    finally:
+        # 清理临时文件
+        package_service.cleanup()
+
+
+@api_v1.route('/datasets/<int:dataset_id>/package-info', methods=['GET'])
+@swag_from({
+    'tags': ['数据集'],
+    'summary': '获取数据集打包信息',
+    'parameters': [{
+        'name': 'dataset_id',
+        'in': 'path',
+        'type': 'integer',
+        'required': True,
+        'description': '数据集ID'
+    }],
+    'responses': {
+        200: {'description': '成功获取打包信息'},
+        404: {'description': '数据集不存在'}
+    }
+})
+def get_dataset_package_info(dataset_id):
+    """获取数据集打包信息"""
+    from app.services.dataset_package_service import DatasetPackageService
+    
+    try:
+        package_service = DatasetPackageService()
+        package_info = package_service.get_dataset_package_info(dataset_id)
+        
+        return jsonify(package_info)
+        
+    except Exception as e:
+        logger.error(f"获取数据集打包信息失败: {str(e)}")
+        return jsonify({'error': '获取打包信息失败', 'details': str(e)}), 500
 
 
 @api_v1.route('/datasets/<int:dataset_id>/versions', methods=['GET'])

@@ -1,4 +1,5 @@
 import { apiClient } from '../lib/api-client';
+import { config } from '../lib/config';
 import {
   Dataset,
   DatasetDetail,
@@ -67,6 +68,63 @@ export class DatasetService {
    */
   static async downloadDataset(id: string | number): Promise<DownloadResponse> {
     const response = await apiClient.post<DownloadResponse>(`/api/v1/datasets/${id}/download`);
+    return response;
+  }
+
+  /**
+   * 打包下载数据集
+   */
+  static async packageDownloadDataset(id: string | number): Promise<Blob> {
+    // 使用配置中的API地址
+    const url = `${config.apiBaseUrl}/datasets/${id}/package-download`;
+    
+    // 获取token，如果不存在则抛出错误
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('用户未登录');
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({}),
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token可能过期了，提示用户重新登录
+        throw new Error('登录已过期，请重新登录');
+      }
+      throw new Error(`下载失败: ${response.status}`);
+    }
+    
+    return response.blob();
+  }
+
+  /**
+   * 获取数据集打包信息
+   */
+  static async getPackageInfo(id: string | number): Promise<{
+    total_files: number;
+    total_size: number;
+    total_size_formatted: string;
+    enhanced_versions: number;
+    traditional_versions: number;
+    raw_data_sources: number;
+    estimated_time: string;
+  }> {
+    const response = await apiClient.get<{
+      total_files: number;
+      total_size: number;
+      total_size_formatted: string;
+      enhanced_versions: number;
+      traditional_versions: number;
+      raw_data_sources: number;
+      estimated_time: string;
+    }>(`/api/v1/datasets/${id}/package-info`);
     return response;
   }
 

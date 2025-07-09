@@ -53,7 +53,21 @@
     "commitMessage": "コミットメッセージ",
     "settingsInDevelopment": "設定機能は開発中...",
     "noVersion": "バージョンなし",
-    "files": "ファイル"
+    "files": "ファイル",
+    "packageDownload": "パッケージダウンロード",
+    "packaging": "パッケージング中...",
+    "packageInfo": "パッケージ情報",
+    "estimatedTime": "推定時間",
+    "enhancedVersions": "拡張バージョン",
+    "traditionalVersions": "従来バージョン",
+    "rawDataSources": "生データソース",
+    "packageIncludes": "パッケージに含まれる内容",
+    "allVersionFiles": "全バージョンファイル",
+    "datasetMetadata": "データセットメタデータ",
+    "readmeDocumentation": "READMEドキュメント",
+    "versionHistory": "バージョン履歴",
+    "totalFiles": "総ファイル数",
+    "defaultVersion": "デフォルトバージョン"
   },
   "create": {
     "title": "データセットを作成",

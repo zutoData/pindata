@@ -53,7 +53,21 @@
     "commitMessage": "Commit Message",
     "settingsInDevelopment": "Settings are under development...",
     "noVersion": "No Version",
-    "files": "Files"
+    "files": "Files",
+    "packageDownload": "Package Download",
+    "packaging": "Packaging...",
+    "packageInfo": "Package Information",
+    "estimatedTime": "Estimated Time",
+    "enhancedVersions": "Enhanced Versions",
+    "traditionalVersions": "Traditional Versions",
+    "rawDataSources": "Raw Data Sources",
+    "packageIncludes": "Package Includes",
+    "allVersionFiles": "All Version Files",
+    "datasetMetadata": "Dataset Metadata",
+    "readmeDocumentation": "README Documentation",
+    "versionHistory": "Version History",
+    "totalFiles": "Total Files",
+    "defaultVersion": "Default Version"
   },
   "create": {
     "title": "Create Dataset",

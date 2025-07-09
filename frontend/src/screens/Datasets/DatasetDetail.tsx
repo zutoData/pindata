@@ -32,7 +32,9 @@ import {
   Download,
   Eye,
   Settings,
-  Info
+  Info,
+  PackageIcon,
+  CheckCircleIcon
 } from 'lucide-react';
 
 export const DatasetDetailScreen = (): JSX.Element => {
@@ -44,6 +46,19 @@ export const DatasetDetailScreen = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('preview');
   const [error, setError] = useState<string | null>(null);
+  
+  // 打包下载相关状态
+  const [isPackageDownloading, setIsPackageDownloading] = useState(false);
+  const [packageInfo, setPackageInfo] = useState<{
+    total_files: number;
+    total_size: number;
+    total_size_formatted: string;
+    enhanced_versions: number;
+    traditional_versions: number;
+    raw_data_sources: number;
+    estimated_time: string;
+  } | null>(null);
+  const [packageInfoLoading, setPackageInfoLoading] = useState(false);
 
   // 获取数据集详情
   const fetchDatasetDetail = async () => {
@@ -59,11 +74,30 @@ export const DatasetDetailScreen = (): JSX.Element => {
       setDataset(datasetInfo);
       setPreviewData(preview);
       setCurrentVersion(preview.version);
+      
+      // 获取打包信息
+      fetchPackageInfo();
     } catch (err) {
       console.error('获取数据集详情失败:', err);
       setError(err instanceof Error ? err.message : t('datasets.error'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 获取打包信息
+  const fetchPackageInfo = async () => {
+    if (!id) return;
+    
+    try {
+      setPackageInfoLoading(true);
+      const info = await datasetService.getPackageInfo(id);
+      setPackageInfo(info);
+    } catch (err) {
+      console.error('获取打包信息失败:', err);
+      // 打包信息获取失败不影响主要功能
+    } finally {
+      setPackageInfoLoading(false);
     }
   };
 
@@ -106,7 +140,45 @@ export const DatasetDetailScreen = (): JSX.Element => {
     }
   };
 
-  // 处理下载
+  // 处理打包下载
+  const handlePackageDownload = async () => {
+    if (!dataset) return;
+    
+    try {
+      setIsPackageDownloading(true);
+      
+      // 获取打包的blob数据
+      const blob = await datasetService.packageDownloadDataset(dataset.id);
+      
+      // 创建下载链接
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${dataset.owner}_${dataset.name}_${dataset.id}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // 清理
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      // 更新下载次数（如果需要）
+      try {
+        const response = await datasetService.downloadDataset(dataset.id);
+        setDataset(prev => prev ? { ...prev, downloads: response.downloads } : null);
+      } catch (updateErr) {
+        console.warn('更新下载次数失败:', updateErr);
+      }
+      
+    } catch (err) {
+      console.error('打包下载失败:', err);
+      setError(err instanceof Error ? err.message : '下载失败');
+    } finally {
+      setIsPackageDownloading(false);
+    }
+  };
+
+  // 处理下载 (保留原有的单独下载逻辑)
   const handleDownload = async () => {
     if (!dataset) return;
     
@@ -191,20 +263,53 @@ export const DatasetDetailScreen = (): JSX.Element => {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Link to="/datasets">
-          <Button variant="outline" size="sm">
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            {t('datasets.detail.backToList')}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Link to="/datasets">
+            <Button variant="outline" size="sm">
+              <ArrowLeftIcon className="w-4 h-4 mr-2" />
+              {t('datasets.detail.backToList')}
+            </Button>
+          </Link>
+          <div className="flex items-center gap-3">
+            <DatabaseIcon className="w-6 h-6 text-[#1977e5]" />
+            <h1 className="text-[28px] font-bold leading-8 text-[#0c141c]">
+              {dataset.owner}/{dataset.name}
+            </h1>
+            {dataset.featured && (
+              <Badge className="bg-[#ff6b35] text-white">{t('datasets.recommended')}</Badge>
+            )}
+          </div>
+        </div>
+        
+        {/* 打包下载按钮 */}
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handlePackageDownload}
+            disabled={isPackageDownloading}
+            className="bg-[#1977e5] hover:bg-[#1565c0] text-white"
+            size="lg"
+          >
+            {isPackageDownloading ? (
+              <>
+                <Loader2Icon className="w-4 h-4 mr-2 animate-spin" />
+                {t('datasets.detail.packaging')}
+              </>
+            ) : (
+              <>
+                <PackageIcon className="w-4 h-4 mr-2" />
+                {t('datasets.detail.packageDownload')}
+              </>
+            )}
           </Button>
-        </Link>
-        <div className="flex items-center gap-3">
-          <DatabaseIcon className="w-6 h-6 text-[#1977e5]" />
-          <h1 className="text-[28px] font-bold leading-8 text-[#0c141c]">
-            {dataset.owner}/{dataset.name}
-          </h1>
-          {dataset.featured && (
-            <Badge className="bg-[#ff6b35] text-white">{t('datasets.recommended')}</Badge>
+          
+          {packageInfo && (
+            <div className="text-sm text-gray-600">
+              <div className="text-right">
+                <div className="font-medium">{packageInfo.total_files} {t('datasets.detail.files')}</div>
+                <div>{packageInfo.total_size_formatted}</div>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -252,6 +357,78 @@ export const DatasetDetailScreen = (): JSX.Element => {
         </TabsContent>
 
         <TabsContent value="info" className="space-y-4">
+          {/* 打包下载信息卡片 */}
+          {packageInfo && (
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{t('datasets.detail.packageInfo')}</h3>
+                <Button
+                  onClick={handlePackageDownload}
+                  disabled={isPackageDownloading}
+                  className="bg-[#1977e5] hover:bg-[#1565c0] text-white"
+                >
+                  {isPackageDownloading ? (
+                    <>
+                      <Loader2Icon className="w-4 h-4 mr-2 animate-spin" />
+                      {t('datasets.detail.packaging')}
+                    </>
+                  ) : (
+                    <>
+                      <PackageIcon className="w-4 h-4 mr-2" />
+                      {t('datasets.detail.packageDownload')}
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{packageInfo.total_files}</div>
+                  <div className="text-sm text-gray-600">{t('datasets.detail.totalFiles')}</div>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{packageInfo.total_size_formatted}</div>
+                  <div className="text-sm text-gray-600">{t('datasets.detail.totalSize')}</div>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{packageInfo.estimated_time}</div>
+                  <div className="text-sm text-gray-600">{t('datasets.detail.estimatedTime')}</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                  <span className="text-sm">
+                    {packageInfo.enhanced_versions} {t('datasets.detail.enhancedVersions')}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                  <span className="text-sm">
+                    {packageInfo.traditional_versions} {t('datasets.detail.traditionalVersions')}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                  <span className="text-sm">
+                    {packageInfo.raw_data_sources} {t('datasets.detail.rawDataSources')}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-2">{t('datasets.detail.packageIncludes')}</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• {t('datasets.detail.allVersionFiles')}</li>
+                  <li>• {t('datasets.detail.datasetMetadata')}</li>
+                  <li>• {t('datasets.detail.readmeDocumentation')}</li>
+                  <li>• {t('datasets.detail.versionHistory')}</li>
+                </ul>
+              </div>
+            </Card>
+          )}
+          
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">{t('datasets.detail.detailInfo')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
