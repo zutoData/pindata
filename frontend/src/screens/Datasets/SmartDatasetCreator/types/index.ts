@@ -25,6 +25,8 @@ export interface ProcessingConfig {
   chunkOverlap: number;     // 分片重叠大小
   preserveStructure: boolean; // 保持文档结构
   splitByHeaders: boolean;   // 按标题分割
+  // 预训练数据清洗配置
+  maxDocumentLength: number; // 最大文档长度（字符数），超过此长度将被截断
   // 思考过程配置（根据模型能力动态调整）
   enableThinkingProcess: boolean; // 启用思考过程处理
   // 对于supports_reasoning=true的模型：提取配置

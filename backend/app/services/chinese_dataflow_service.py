@@ -487,10 +487,10 @@ class ChineseDataFlowService:
         return formatted
     
     def _create_filter_result(self, original_text: str, processed_text: str, status: str, 
-                            message: str, filter_results: Dict, start_time: datetime, 
-                            quality_score: float = 0.0) -> Dict[str, Any]:
-        """创建过滤结果"""
-        return {
+                             message: str, filter_results: Dict, start_time: datetime, 
+                             quality_score: float = 0.0) -> Dict[str, Any]:
+        """创建过滤结果 - 返回纯净语料格式"""
+        result = {
             'original_text': original_text,
             'processed_text': processed_text,
             'status': status,
@@ -500,6 +500,20 @@ class ChineseDataFlowService:
             'processing_time': (datetime.now() - start_time).total_seconds(),
             'timestamp': datetime.now().isoformat()
         }
+        
+        # 如果处理成功，添加语料数据格式
+        if status == 'passed' and processed_text:
+            result['corpus_data'] = {
+                'text': processed_text,
+                'id': f"chinese_filter_{int(datetime.now().timestamp())}",
+                'source': 'chinese_cleaned',
+                'type': 'corpus_text',
+                'length': len(processed_text),
+                'language': 'zh',
+                'quality_score': quality_score
+            }
+        
+        return result
     
     def get_default_chinese_filter_config(self) -> Dict[str, Any]:
         """获取默认中文过滤配置"""

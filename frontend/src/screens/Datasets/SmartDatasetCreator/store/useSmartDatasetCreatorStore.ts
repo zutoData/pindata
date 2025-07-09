@@ -30,6 +30,7 @@ const initialState: SmartDatasetCreatorState = {
     chunkOverlap: 200,
     preserveStructure: true,
     splitByHeaders: true,
+    maxDocumentLength: 50000, // 预训练数据清洗最大文档长度：5万字符
     // 思考过程配置默认值
     enableThinkingProcess: false,
     reasoningExtractionMethod: null,
@@ -360,19 +361,75 @@ export const useSmartDatasetCreatorStore = create<SmartDatasetCreatorState & Sma
         const formatDetails = FORMAT_DETAILS[outputFormat as keyof typeof FORMAT_DETAILS];
         
         if (!currentDatasetType) return '';
-
-        const fileCount = selectedFiles.length;
-        const fileNames = selectedFiles.map(f => f.name).join(', ');
-        const totalEstimatedChunks = Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize);
         
-        // 对于预训练数据清洗，直接返回极简提示词
+        // 对于预训练数据清洗，直接返回优化的提示词
         if (datasetType === 'pretraining-data-cleaning') {
           if (isEnglish) {
-            return `You are a text cleaning assistant. Please clean the following text into pure text suitable for pretraining, removing markdown formatting, extra spaces, and useless characters while preserving valuable content.`;
+            return `You are a professional pretraining data cleaning assistant. Your task is to clean raw text into high-quality corpus suitable for large language model pretraining.
+
+Please clean the text according to the following requirements:
+
+1. **Content Cleaning**:
+   - Remove markdown tags, HTML tags, extra blank lines and spaces
+   - Remove meaningless repetitive content and noise text
+   - Retain valuable information and complete sentences
+   - Ensure natural and fluent language
+
+2. **Format Requirements**:
+   - Each cleaned corpus paragraph must be wrapped in the following format: [语料开始]...[语料结束]
+   - If there are multiple independent corpus paragraphs, each should be wrapped separately
+   - Corpus content should ensure complete sentences and clear paragraph logic
+
+3. **Quality Standards**:
+   - Corpus length should be at least 30 characters
+   - Content should have practical value, avoid pure titles or directories
+   - Maintain the original language style and professionalism
+
+Please strictly follow the above requirements and wrap each cleaned corpus with [语料开始] and [语料结束] tags.`;
           } else if (isJapanese) {
-            return `あなたはテキストクリーニングアシスタントです。以下のテキストを事前学習に適した純粋なテキストにクリーニングし、markdownフォーマット、余分な空白、無駄な文字を除去しながら価値のある内容を保持してください。`;
+            return `あなたは専門的な事前学習データクリーニングアシスタントです。あなたのタスクは、生のテキストを大規模言語モデルの事前学習に適した高品質なコーパスにクリーニングすることです。
+
+以下の要件に従ってテキストをクリーニングしてください：
+
+1. **コンテンツクリーニング**：
+   - マークダウンタグ、HTMLタグ、余分な空行とスペースを除去
+   - 無意味な反復コンテンツとノイズテキストを除去
+   - 価値のある情報と完全な文を保持
+   - 自然で流暢な言語を確保
+
+2. **フォーマット要件**：
+   - クリーニングされた各コーパス段落は以下の形式で包む必要があります：[语料开始]...[语料结束]
+   - 複数の独立したコーパス段落がある場合、それぞれを個別に包んでください
+   - コーパス内容は完全な文と明確な段落論理を保証してください
+
+3. **品質基準**：
+   - コーパス長は最低30文字
+   - 内容は実用的価値を持ち、純粋なタイトルや目次を避ける
+   - 元の言語スタイルと専門性を維持
+
+上記の要件に厳密に従い、クリーニングされた各コーパスを[语料开始]と[语料结束]タグで包んでください。`;
           } else {
-            return `你是一个文本清洗助理。请将下面的文本清洗成适合预训练的纯净文本，去除markdown格式、多余空格和无用字符，保留有价值内容。`;
+            return `你是一个专业的预训练数据清洗助理。你的任务是将原始文本清洗成适合大语言模型预训练的高质量语料。
+
+请按照以下要求清洗文本：
+
+1. **内容清洗**：
+   - 去除markdown标记、HTML标签、多余的空行和空格
+   - 去除无意义的重复内容和噪声文本
+   - 保留有价值的信息和完整的句子
+   - 确保语言自然流畅
+
+2. **格式要求**：
+   - 每个清洗后的语料段落必须用以下格式包裹：[语料开始]...[语料结束]
+   - 如果有多个独立的语料段落，每个都要单独包裹
+   - 语料内容要保证句子完整，段落逻辑清晰
+
+3. **质量标准**：
+   - 语料长度至少30个字符
+   - 内容要有实际价值，避免纯标题或目录
+   - 保持原文的语言风格和专业性
+
+请严格按照上述要求处理，并将每个清洗后的语料用[语料开始]和[语料结束]标记包裹。`;
           }
         }
         
@@ -418,7 +475,6 @@ export const useSmartDatasetCreatorStore = create<SmartDatasetCreatorState & Sma
 ## Task${projectContext}
 - **Output Format**: ${formatDetails?.name || outputFormat} 
 - **Data Type**: ${currentDatasetType.name}
-- **Segmentation**: ~${processingConfig.chunkSize} characters, overlap ${processingConfig.chunkOverlap} characters
 
 ${formatDetails ? `**Format Example**:
 \`\`\`json
@@ -426,14 +482,13 @@ ${formatDetails.example}
 \`\`\`
 ` : 'Follow the specified format for data output.'}
 
-Generate accurate, relevant training data following the specified format.`;
+Please generate accurate, relevant training data following the specified format.`;
         } else if (isJapanese) {
           basePrompt = `あなたは文書から${currentDatasetType.name}トレーニングデータを生成するデータアノテーションエキスパートです。
 
 ## タスク${projectContext}
 - **出力形式**: ${formatDetails?.name || outputFormat} 
 - **データタイプ**: ${currentDatasetType.name}
-- **セグメンテーション**: 約${processingConfig.chunkSize}文字、オーバーラップ${processingConfig.chunkOverlap}文字
 
 ${formatDetails ? `**形式例**:
 \`\`\`json
@@ -448,7 +503,6 @@ ${formatDetails.example}
 ## 任务${projectContext}
 - **输出格式**：${formatDetails?.name || outputFormat} 
 - **数据类型**：${currentDatasetType.name}
-- **分片**：约${processingConfig.chunkSize}字符，重叠${processingConfig.chunkOverlap}字符
 
 ${formatDetails ? `**格式示例**：
 \`\`\`json
@@ -457,38 +511,6 @@ ${formatDetails.example}
 ` : '请按照指定格式输出数据。'}
 
 请按照指定格式生成准确、相关的训练数据。`;
-        }
-
-        // 添加文档分片处理说明
-        if (processingConfig.preserveStructure || processingConfig.splitByHeaders) {
-          if (isEnglish) {
-            basePrompt += `\n\n## Processing`;
-            if (processingConfig.preserveStructure) {
-              basePrompt += `\n- Preserve document structure`;
-            }
-            if (processingConfig.splitByHeaders) {
-              basePrompt += `\n- Split by headers`;
-            }
-            basePrompt += `\n- ~${totalEstimatedChunks} segments total`;
-          } else if (isJapanese) {
-            basePrompt += `\n\n## 処理設定`;
-            if (processingConfig.preserveStructure) {
-              basePrompt += `\n- 文書構造を保持`;
-            }
-            if (processingConfig.splitByHeaders) {
-              basePrompt += `\n- ヘッダーで分割`;
-            }
-            basePrompt += `\n- 約${totalEstimatedChunks}セグメント`;
-          } else {
-            basePrompt += `\n\n## 处理配置`;
-            if (processingConfig.preserveStructure) {
-              basePrompt += `\n- 保持文档结构`;
-            }
-            if (processingConfig.splitByHeaders) {
-              basePrompt += `\n- 按标题分割`;
-            }
-            basePrompt += `\n- 约${totalEstimatedChunks}个片段`;
-          }
         }
 
         // 根据数据集类型添加具体指导 - 支持多语言且提高质量要求
@@ -566,27 +588,6 @@ ${formatDetails.example}
           case 'pretraining-data-cleaning':
             // 预训练数据清洗已在前面提前返回，不会执行到这里
             break;
-        }
-
-        // 添加输入文件信息
-        if (isEnglish) {
-          basePrompt += `\n\n## Files to Process
-Total: ${fileCount} files
-Files: ${fileNames}
-
-Process each document segment to generate quality training data in ${outputFormat} format.`;
-        } else if (isJapanese) {
-          basePrompt += `\n\n## 処理対象ファイル
-総数：${fileCount}個のファイル
-ファイル：${fileNames}
-
-各文書セグメントを処理して、${outputFormat}形式で品質の高いトレーニングデータを生成してください。`;
-        } else {
-          basePrompt += `\n\n## 待处理文件
-总数：${fileCount}个文件
-文件：${fileNames}
-
-处理每个文档片段，生成${outputFormat}格式的高质量训练数据。`;
         }
 
         return basePrompt;

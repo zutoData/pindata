@@ -63,8 +63,12 @@ export const Step4PreviewConfirm: React.FC = () => {
 
   // 计算总文件大小和预估分片数
   const totalFileSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
-  const estimatedChunks = Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize);
-  const estimatedProcessingTime = Math.ceil(estimatedChunks / processingConfig.batchSize * 1.5);
+  const estimatedChunks = datasetType === 'pretraining-data-cleaning' 
+    ? selectedFiles.length // 预训练数据清洗：每个文档产生一个语料
+    : Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize); // 其他类型：按分块计算
+  const estimatedProcessingTime = datasetType === 'pretraining-data-cleaning'
+    ? Math.ceil(selectedFiles.length / processingConfig.batchSize * 2) // 预训练数据清洗：按文档数量计算
+    : Math.ceil(estimatedChunks / processingConfig.batchSize * 1.5); // 其他类型：按分块计算
 
   // 检查配置完整性
   const configurationIssues = [];
@@ -368,6 +372,7 @@ export const Step4PreviewConfirm: React.FC = () => {
             chunk_overlap: processingConfig.chunkOverlap,
             preserve_structure: processingConfig.preserveStructure,
             split_by_headers: processingConfig.splitByHeaders,
+            maxDocumentLength: processingConfig.maxDocumentLength, // 预训练数据清洗最大文档长度
             custom_prompt: processingConfig.customPrompt,
             temperature: processingConfig.temperature,
             max_tokens: processingConfig.maxTokens,
@@ -736,174 +741,236 @@ export const Step4PreviewConfirm: React.FC = () => {
         </Card>
       )}
 
-      {/* 文档分片设置概览 */}
-      <Card className="border-[#d1dbe8]">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <LayersIcon className="w-5 h-5 text-[#1977e5]" />
-              <h3 className="text-base font-semibold text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.title')}</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              {showChunkPreview && chunkPreviews.length > 0 && (
-                <Button
-                  variant="outline"
+      {/* 文档分片配置概览 - 预训练数据清洗不需要分块 */}
+      {datasetType !== 'pretraining-data-cleaning' && (
+        <Card className="border-[#d1dbe8]">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <LayersIcon className="w-6 h-6 text-[#1977e5]" />
+                <h3 className="text-lg font-semibold text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.title')}</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
                   size="sm"
                   onClick={handleRefreshPreview}
                   disabled={loadingChunks}
-                  className="text-xs"
+                  className="flex items-center gap-2"
                 >
-                  <RefreshCwIcon className="w-3 h-3 mr-1" />
+                  {loadingChunks ? (
+                    <Loader2Icon className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCwIcon className="w-4 h-4" />
+                  )}
                   {t('smartDatasetCreator.step4.chunkSettingOverview.refresh')}
                 </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleTogglePreview}
-                disabled={selectedFiles.length === 0}
-                className="text-xs"
-              >
-                {showChunkPreview ? (
-                  <>
-                    <ChevronUpIcon className="w-3 h-3 mr-1" />
-                    {t('smartDatasetCreator.step4.chunkSettingOverview.hidePreview')}
-                  </>
-                ) : (
-                  <>
-                    <EyeIcon className="w-3 h-3 mr-1" />
-                    {t('smartDatasetCreator.step4.chunkSettingOverview.showPreview')}
-                  </>
-                )}
-              </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowChunkPreview(!showChunkPreview)}
+                  className="flex items-center gap-2"
+                >
+                  <FileIcon className="w-4 h-4" />
+                  {showChunkPreview ? 
+                    t('smartDatasetCreator.step4.chunkSettingOverview.hidePreview') : 
+                    t('smartDatasetCreator.step4.chunkSettingOverview.showPreview')
+                  }
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <div className="text-sm">
-                <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.chunkSize')}</span>
-                <p className="font-semibold text-[#0c141c]">{processingConfig.chunkSize} 字符</p>
-              </div>
-            </div>
-            <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <div className="text-sm">
-                <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.overlapSize')}</span>
-                <p className="font-semibold text-[#0c141c]">{processingConfig.chunkOverlap} 字符</p>
-              </div>
-            </div>
-            <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <div className="text-sm">
-                <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.estimatedChunks')}</span>
-                <p className="font-semibold text-[#0c141c]">{estimatedChunks} 个</p>
-              </div>
-            </div>
-            <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <div className="text-sm">
-                <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.chunkEfficiency')}</span>
-                <p className="font-semibold text-[#0c141c]">
-                  {processingConfig.chunkOverlap / processingConfig.chunkSize < 0.1 ? t('smartDatasetCreator.step4.chunkSettingOverview.high') :
-                   processingConfig.chunkOverlap / processingConfig.chunkSize < 0.2 ? t('smartDatasetCreator.step4.chunkSettingOverview.medium') : t('smartDatasetCreator.step4.chunkSettingOverview.low')}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-            <div className="flex items-center justify-between p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.preserveStructure')}</span>
-              <span className={`px-2 py-1 text-xs rounded ${
-                processingConfig.preserveStructure 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-gray-100 text-gray-700'
-              }`}>
-                {processingConfig.preserveStructure ? t('smartDatasetCreator.step4.chunkSettingOverview.enabled') : t('smartDatasetCreator.step4.chunkSettingOverview.disabled')}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-              <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.splitByHeaders')}</span>
-              <span className={`px-2 py-1 text-xs rounded ${
-                processingConfig.splitByHeaders 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-gray-100 text-gray-700'
-              }`}>
-                {processingConfig.splitByHeaders ? t('smartDatasetCreator.step4.chunkSettingOverview.enabled') : t('smartDatasetCreator.step4.chunkSettingOverview.disabled')}
-              </span>
-            </div>
-          </div>
-
-          {/* 分片预览 */}
-          {showChunkPreview && (
-            <div className="p-3 bg-[#f8fbff] border border-[#e3f2fd] rounded-lg">
-              <div className="flex items-center gap-2 mb-3">
-                <LayersIcon className="w-4 h-4 text-[#1977e5]" />
-                <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.realChunkPreview')}</span>
-                <span className="text-xs text-[#4f7096]">{t('smartDatasetCreator.step4.chunkSettingOverview.basedOnActualContent')}</span>
-              </div>
-              
-              {loadingChunks ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2Icon className="w-5 h-5 animate-spin mr-2" />
-                  <span className="text-sm text-[#4f7096]">{t('smartDatasetCreator.step4.chunkSettingOverview.loadingDocumentContent')}</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.chunkSize')}</span>
+                  <p className="font-semibold text-[#0c141c]">{processingConfig.chunkSize} 字符</p>
                 </div>
-              ) : chunkError ? (
-                <div className="text-center py-6">
-                  <AlertTriangleIcon className="w-8 h-8 mx-auto mb-2 text-orange-500" />
-                  <p className="text-sm text-orange-600">{chunkError}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRefreshPreview}
-                    className="mt-2"
-                  >
-                    {t('smartDatasetCreator.step4.chunkSettingOverview.retry')}
-                  </Button>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.overlapSize')}</span>
+                  <p className="font-semibold text-[#0c141c]">{processingConfig.chunkOverlap} 字符</p>
                 </div>
-              ) : chunkPreviews.length > 0 ? (
-                <div className="space-y-3">
-                  {chunkPreviews.map((chunk, index) => (
-                    <div key={chunk.id} className="border border-[#e2e8f0] rounded-lg p-3 bg-white">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-[#1977e5]">分片 #{chunk.id}</span>
-                        <div className="flex gap-3 text-xs text-[#6b7280]">
-                          <span>{t('smartDatasetCreator.step4.chunkSettingOverview.source')}: {chunk.sourceFile}</span>
-                          <span>{t('smartDatasetCreator.step4.chunkSettingOverview.position')}: {chunk.startPos}-{chunk.endPos}</span>
-                          <span>{t('smartDatasetCreator.step4.chunkSettingOverview.size')}: {chunk.size} 字符</span>
-                          {index > 0 && chunkPreviews[index-1].sourceFile === chunk.sourceFile && (
-                            <span className="text-orange-600">
-                              {t('smartDatasetCreator.step4.chunkSettingOverview.overlap')}: {processingConfig.chunkOverlap} 字符
-                            </span>
-                          )}
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.estimatedChunks')}</span>
+                  <p className="font-semibold text-[#0c141c]">{estimatedChunks} 个</p>
+                </div>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.chunkEfficiency')}</span>
+                  <p className="font-semibold text-[#0c141c]">
+                    {processingConfig.chunkOverlap / processingConfig.chunkSize < 0.1 ? t('smartDatasetCreator.step4.chunkSettingOverview.high') :
+                     processingConfig.chunkOverlap / processingConfig.chunkSize < 0.2 ? t('smartDatasetCreator.step4.chunkSettingOverview.medium') : t('smartDatasetCreator.step4.chunkSettingOverview.low')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.preserveStructure')}</span>
+                  <p className="font-semibold text-[#0c141c]">
+                    {processingConfig.preserveStructure ? t('smartDatasetCreator.step4.chunkSettingOverview.enabled') : t('smartDatasetCreator.step4.chunkSettingOverview.disabled')}
+                  </p>
+                </div>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">{t('smartDatasetCreator.step4.chunkSettingOverview.splitByHeaders')}</span>
+                  <p className="font-semibold text-[#0c141c]">
+                    {processingConfig.splitByHeaders ? t('smartDatasetCreator.step4.chunkSettingOverview.enabled') : t('smartDatasetCreator.step4.chunkSettingOverview.disabled')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 分片预览 */}
+            {showChunkPreview && (
+              <div className="mt-6 p-4 bg-[#f8fbff] border border-[#e3f2fd] rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileTextIcon className="w-4 h-4 text-[#1977e5]" />
+                  <span className="text-sm font-medium text-[#0c141c]">{t('smartDatasetCreator.step4.chunkSettingOverview.realChunkPreview')}</span>
+                  <span className="text-xs text-[#4f7096]">({t('smartDatasetCreator.step4.chunkSettingOverview.basedOnActualContent')})</span>
+                </div>
+                
+                <div className="min-h-[120px] overflow-y-auto">
+                  {loadingChunks ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2Icon className="w-6 h-6 animate-spin mr-2" />
+                      <span className="text-sm text-[#6b7280]">{t('smartDatasetCreator.step4.chunkSettingOverview.loadingDocumentContent')}</span>
+                    </div>
+                  ) : chunkError ? (
+                    <div className="text-center py-6">
+                      <AlertTriangleIcon className="w-8 h-8 mx-auto mb-2 text-orange-500" />
+                      <p className="text-sm text-orange-600">{chunkError}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRefreshPreview}
+                        className="mt-2"
+                      >
+                        {t('smartDatasetCreator.step4.chunkSettingOverview.retry')}
+                      </Button>
+                    </div>
+                  ) : chunkPreviews.length > 0 ? (
+                    <div className="space-y-3">
+                      {chunkPreviews.map((chunk, index) => (
+                        <div key={chunk.id} className="border border-[#e2e8f0] rounded-lg p-3 bg-white">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-[#1977e5]">分片 #{chunk.id}</span>
+                            <div className="flex gap-3 text-xs text-[#6b7280]">
+                              <span>{t('smartDatasetCreator.step4.chunkSettingOverview.source')}: {chunk.sourceFile}</span>
+                              <span>{t('smartDatasetCreator.step4.chunkSettingOverview.position')}: {chunk.startPos}-{chunk.endPos}</span>
+                              <span>{t('smartDatasetCreator.step4.chunkSettingOverview.size')}: {chunk.size} 字符</span>
+                              {index > 0 && chunkPreviews[index-1].sourceFile === chunk.sourceFile && (
+                                <span className="text-orange-600">
+                                  {t('smartDatasetCreator.step4.chunkSettingOverview.overlap')}: {processingConfig.chunkOverlap} 字符
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-xs text-[#4f7096] bg-[#fafafa] p-3 rounded border max-h-40 overflow-y-auto whitespace-pre-wrap">
+                            {chunk.content}
+                          </div>
+                          <div className="text-xs text-[#6b7280] mt-2 flex justify-between">
+                            <span>{t('smartDatasetCreator.step4.chunkSettingOverview.previewLength')}: {Math.min(chunk.content.length, 500)} / {chunk.content.length} 字符</span>
+                            {chunk.content.length > 500 && (
+                              <span className="text-orange-600">* {t('smartDatasetCreator.step4.chunkSettingOverview.contentTruncated')}</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-xs text-[#4f7096] bg-[#fafafa] p-3 rounded border max-h-40 overflow-y-auto whitespace-pre-wrap">
-                        {chunk.content}
-                      </div>
-                      <div className="text-xs text-[#6b7280] mt-2 flex justify-between">
-                        <span>{t('smartDatasetCreator.step4.chunkSettingOverview.previewLength')}: {Math.min(chunk.content.length, 500)} / {chunk.content.length} 字符</span>
-                        {chunk.content.length > 500 && (
-                          <span className="text-orange-600">* {t('smartDatasetCreator.step4.chunkSettingOverview.contentTruncated')}</span>
-                        )}
+                      ))}
+                      
+                      <div className="text-center py-2">
+                        <span className="text-xs text-[#6b7280]">
+                          * {t('smartDatasetCreator.step4.chunkSettingOverview.displayFirst', { count: chunkPreviews.length })}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                  
-                  <div className="text-center py-2">
-                    <span className="text-xs text-[#6b7280]">
-                      * {t('smartDatasetCreator.step4.chunkSettingOverview.displayFirst', { count: chunkPreviews.length })}
-                    </span>
+                  ) : (
+                    <div className="text-center py-6">
+                      <FileIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-[#6b7280]">{t('smartDatasetCreator.step4.chunkSettingOverview.noPreviewAvailable')}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* 预训练数据清洗处理方式说明 */}
+      {datasetType === 'pretraining-data-cleaning' && (
+        <Card className="border-[#d1dbe8]">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <LayersIcon className="w-6 h-6 text-[#1977e5]" />
+              <h3 className="text-lg font-semibold text-[#0c141c]">处理方式</h3>
+            </div>
+            
+            {/* 文档长度统计 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">文档数量</span>
+                  <p className="font-semibold text-[#0c141c]">{selectedFiles.length} 个</p>
+                </div>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">最大文档长度</span>
+                  <p className="font-semibold text-[#0c141c]">{(processingConfig.maxDocumentLength / 1000).toFixed(0)}K 字符</p>
+                </div>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">预估处理时间</span>
+                  <p className="font-semibold text-[#0c141c]">{estimatedProcessingTime} 分钟</p>
+                </div>
+              </div>
+              <div className="p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                <div className="text-sm">
+                  <span className="text-[#4f7096] text-xs">输出语料数</span>
+                  <p className="font-semibold text-[#0c141c]">{selectedFiles.length} 个</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-[#f0f9ff] border border-[#bae6fd] rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <InfoIcon className="w-5 h-5 text-[#0369a1] mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-[#0369a1]">
+                  <p className="font-medium mb-2">预训练数据清洗处理方式</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#1977e5] rounded-full"></span>
+                      <span><strong>整文档处理</strong>：每个文档作为完整单位</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#1977e5] rounded-full"></span>
+                      <span><strong>一次性输出</strong>：每个文档产生一个语料</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#1977e5] rounded-full"></span>
+                      <span><strong>智能截断</strong>：超长文档在句子边界截断</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-[#1977e5] rounded-full"></span>
+                      <span><strong>语料质量</strong>：专注于高质量预训练语料</span>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="text-center py-6">
-                  <FileIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-[#6b7280]">{t('smartDatasetCreator.step4.chunkSettingOverview.noPreviewAvailable')}</p>
-                </div>
-              )}
+              </div>
             </div>
-          )}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      )}
 
       {/* 提示词配置概览 */}
       <Card className="border-[#d1dbe8]">
