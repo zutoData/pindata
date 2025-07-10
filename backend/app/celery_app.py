@@ -48,11 +48,51 @@ def make_celery(app_name=__name__):
         
         # 任务配置
         task_track_started=True,
-        task_time_limit=None,  # 无时间限制，适用于长时间数据抽取任务
-        task_soft_time_limit=None,  # 无软时间限制
+        task_time_limit=None,  # 恢复无时间限制，但在任务级别控制
+        task_soft_time_limit=None,  # 恢复无软时间限制
         task_acks_late=True,
         task_reject_on_worker_lost=True,
         task_ignore_result=False,
+        
+        # 专门针对不同类型任务的路由配置
+        task_routes={
+            'tasks.generate_dataset': {'queue': 'long_running'},
+            'tasks.process_chinese_dataflow_batch': {'queue': 'long_running'},
+            'dataflow.run_pipeline_task': {'queue': 'long_running'},
+            'tasks.convert_one_file': {'queue': 'conversion'},  # 文档转换任务
+            'tasks.process_conversion_job': {'queue': 'conversion'},
+        },
+        
+        # 为不同任务设置不同的超时时间
+        task_annotations={
+            # 数据蒸馏任务 - 可能需要很长时间
+            'tasks.generate_dataset': {
+                'time_limit': None,  # 无限制，通过内部机制控制
+                'soft_time_limit': None,
+            },
+            'tasks.process_chinese_dataflow_batch': {
+                'time_limit': None,  # 无限制
+                'soft_time_limit': None,
+            },
+            'dataflow.run_pipeline_task': {
+                'time_limit': None,  # 无限制
+                'soft_time_limit': None,
+            },
+            # 文档转换任务 - 相对较短
+            'tasks.convert_one_file': {
+                'time_limit': 1800,  # 30分钟
+                'soft_time_limit': 1500,  # 25分钟
+            },
+            'tasks.process_conversion_job': {
+                'time_limit': 3600,  # 1小时
+                'soft_time_limit': 3300,  # 55分钟
+            },
+            # 其他普通任务
+            '*': {
+                'time_limit': 3600,  # 1小时默认超时
+                'soft_time_limit': 3300,
+            }
+        },
         
         # Worker 配置 - 优化长时间任务
         worker_prefetch_multiplier=1,

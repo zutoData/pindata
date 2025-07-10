@@ -542,6 +542,41 @@ def cancel_all_tasks():
         cancelled_count = 0
         failed_count = 0
         
+        # 第一步：批量取消所有Celery任务
+        celery_task_ids = []
+        for task in cancellable_tasks:
+            if task.celery_task_id:
+                celery_task_ids.append(task.celery_task_id)
+        
+        # 批量取消Celery任务
+        if celery_task_ids:
+            try:
+                from app.celery_app import celery
+                # 使用批量撤销
+                celery.control.revoke(celery_task_ids, terminate=True)
+                logger.info(f"批量取消了 {len(celery_task_ids)} 个Celery任务")
+                
+                # 等待1秒让任务有时间响应取消信号
+                import time
+                time.sleep(1)
+                
+                # 强制终止所有活跃任务
+                inspect = celery.control.inspect()
+                active_tasks = inspect.active()
+                
+                if active_tasks:
+                    for worker, tasks in active_tasks.items():
+                        for task in tasks:
+                            task_id = task.get('id')
+                            if task_id in celery_task_ids:
+                                # 强制终止任务
+                                celery.control.revoke(task_id, terminate=True, signal='SIGKILL')
+                                logger.info(f"强制终止任务: {task_id}")
+                
+            except Exception as celery_error:
+                logger.error(f"批量取消Celery任务失败: {str(celery_error)}")
+        
+        # 第二步：更新数据库状态
         for task in cancellable_tasks:
             try:
                 # 如果是转换任务，使用转换服务取消
@@ -563,24 +598,42 @@ def cancel_all_tasks():
                         failed_count += 1
                         logger.warning(f"未找到对应的转换任务: task_id={task.id}")
                 else:
-                    # 对于其他类型的任务，直接取消
-                    if task.celery_task_id:
-                        try:
-                            from app.celery_app import celery
-                            celery.control.revoke(task.celery_task_id, terminate=True)
-                            logger.info(f"已取消Celery任务: {task.celery_task_id}")
-                        except Exception as celery_error:
-                            logger.error(f"取消Celery任务失败: {str(celery_error)}")
-                    
-                    # 更新任务状态
+                    # 对于其他类型的任务，强制更新状态
                     task.status = TaskStatus.CANCELLED
                     task.completed_at = datetime.utcnow()
+                    task.error_message = "任务被强制取消"
                     cancelled_count += 1
                     logger.info(f"任务已取消: {task.id}")
                     
             except Exception as e:
                 logger.error(f"取消任务失败 {task.id}: {str(e)}")
                 failed_count += 1
+        
+        # 第三步：清理可能的孤儿任务
+        try:
+            from app.celery_app import celery
+            
+            # 获取所有活跃任务
+            inspect = celery.control.inspect()
+            active_tasks = inspect.active()
+            
+            if active_tasks:
+                # 清理所有未在数据库中记录的活跃任务
+                db_celery_ids = set(task.celery_task_id for task in cancellable_tasks if task.celery_task_id)
+                
+                for worker, tasks in active_tasks.items():
+                    for task in tasks:
+                        task_id = task.get('id')
+                        # 如果活跃任务不在数据库记录中，也强制终止
+                        if task_id and task_id not in db_celery_ids:
+                            # 检查是否是长时间运行的任务
+                            task_name = task.get('name', '')
+                            if any(keyword in task_name for keyword in ['dataset', 'conversion', 'dataflow']):
+                                celery.control.revoke(task_id, terminate=True, signal='SIGKILL')
+                                logger.info(f"清理孤儿任务: {task_id} - {task_name}")
+                
+        except Exception as cleanup_error:
+            logger.error(f"清理孤儿任务失败: {str(cleanup_error)}")
         
         # 提交数据库更改
         db.session.commit()
@@ -589,6 +642,11 @@ def cancel_all_tasks():
         if failed_count > 0:
             message += f'，{failed_count} 个任务取消失败'
         
+        # 添加额外的清理建议
+        cleanup_suggestions = []
+        if cancelled_count > 0:
+            cleanup_suggestions.append("已强制取消所有任务，如果仍有任务在运行，请重启 Celery Worker")
+        
         logger.info(f"批量取消任务完成: 成功 {cancelled_count} 个, 失败 {failed_count} 个")
         
         return success_response(
@@ -596,7 +654,8 @@ def cancel_all_tasks():
             data={
                 'cancelled_count': cancelled_count,
                 'failed_count': failed_count,
-                'total_count': len(cancellable_tasks)
+                'total_count': len(cancellable_tasks),
+                'cleanup_suggestions': cleanup_suggestions
             }
         )
         

@@ -107,7 +107,70 @@ class LLMConversionService:
         self.llm_cache[cache_key] = client
         logger.info(f"LLM客户端创建成功并缓存: {cache_key}")
         return client
-    
+
+    def batch_convert_text(
+        self,
+        chunks: List[str],
+        model_config: Dict,
+        conversion_type: str,
+        processing_config: Dict
+    ) -> Dict[str, Any]:
+        """批量转换文本块"""
+        start_time = time.time()
+        logger.info(f"开始批量文本转换，块数量: {len(chunks)}, 类型: {conversion_type}")
+
+        try:
+            # 从字典配置中获取LLMConfig对象
+            # 注意: 这里的llm_config_obj获取逻辑可能需要根据您的代码调整
+            llm_config_obj = LLMConfig.query.get(model_config['id'])
+            if not llm_config_obj:
+                raise ValueError(f"未找到ID为 {model_config['id']} 的LLM配置")
+
+            llm = self.get_llm_client(llm_config_obj)
+        except Exception as e:
+            logger.error(f"获取LLM客户端失败: {str(e)}")
+            return {'status': 'error', 'error': f"获取LLM客户端失败: {str(e)}"}
+
+        results = []
+        for i, chunk in enumerate(chunks):
+            logger.info(f"处理块 {i+1}/{len(chunks)}")
+            try:
+                # 这里的prompt构建逻辑需要根据实际情况确定
+                # 这是一个基于pretraining-cleaning类型的通用实现
+                if conversion_type == 'pretraining-cleaning':
+                    from app.tasks.dataset_generation_tasks import _build_pretraining_cleaning_prompt
+                    prompt = _build_pretraining_cleaning_prompt(chunk, processing_config)
+                else:
+                    # 对于其他类型，可能需要不同的prompt构建方式
+                    prompt = chunk
+
+                messages = [HumanMessage(content=prompt)]
+                response = llm.invoke(messages)
+                
+                results.append({
+                    'status': 'success',
+                    'original_content': chunk,
+                    'cleaned_content': response.content
+                })
+            except Exception as e:
+                logger.error(f"处理块 {i+1} 失败: {str(e)}")
+                results.append({
+                    'status': 'failed',
+                    'original_content': chunk,
+                    'error': str(e)
+                })
+
+        total_duration = time.time() - start_time
+        logger.info(f"批量文本转换完成, 耗时: {total_duration:.2f}秒")
+
+        return {
+            'status': 'success',
+            'chunks': results,  # <--- 确保返回的字典中包含 'chunks' 键
+            'duration': total_duration,
+            'total_chunks': len(chunks),
+            'successful_chunks': len([r for r in results if r['status'] == 'success'])
+        }
+
     def convert_document_with_vision(
         self,
         file_path: str,
@@ -391,20 +454,43 @@ class LLMConversionService:
             HumanMessage(content=content_parts)
         ]
     
-    def call_llm(self, llm_config: LLMConfig, prompt: str) -> str:
+    def call_llm(self, llm_config: LLMConfig, prompt: str, timeout: int = 300) -> str:
         """调用LLM生成文本回复"""
+        import signal
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+        
+        def llm_call():
+            try:
+                llm = self.get_llm_client(llm_config)
+                messages = [HumanMessage(content=prompt)]
+                logger.info(f"调用LLM生成文本 - 模型: {llm_config.model_name}, 超时: {timeout}秒")
+                start_time = time.time()
+                response = llm.invoke(messages)
+                duration = time.time() - start_time
+                logger.info(f"LLM调用完成 - 耗时: {duration:.2f}秒, 输入长度: {len(prompt)}, 输出长度: {len(response.content)}")
+                return response.content
+            except Exception as e:
+                logger.error(f"LLM调用内部错误: {str(e)}")
+                raise
+        
+        # 使用线程池执行带超时的调用
         try:
-            llm = self.get_llm_client(llm_config)
-            messages = [HumanMessage(content=prompt)]
-            logger.info(f"调用LLM生成文本 - 模型: {llm_config.model_name}")
-            start_time = time.time()
-            response = llm.invoke(messages)
-            duration = time.time() - start_time
-            logger.info(f"LLM调用完成 - 耗时: {duration:.2f}秒, 输入长度: {len(prompt)}, 输出长度: {len(response.content)}")
-            llm_config.update_usage()
-            return response.content
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(llm_call)
+                
+                # 等待结果，支持动态超时
+                try:
+                    result = future.result(timeout=timeout)
+                    return result
+                except FutureTimeoutError:
+                    logger.error(f"LLM调用超时 ({timeout}秒)")
+                    future.cancel()
+                    raise TimeoutError(f"LLM调用超时 ({timeout}秒)")
+                
+        except TimeoutError:
+            raise
         except Exception as e:
-            logger.error(f"调用LLM失败: {str(e)}", exc_info=True)
+            logger.error(f"LLM调用失败: {str(e)}")
             raise
 
     def call_llm_with_thinking_process(self, llm_config: LLMConfig, prompt: str, thinking_config: Dict[str, Any] = None) -> Dict[str, str]:
