@@ -64,7 +64,7 @@ export const Step4PreviewConfirm: React.FC = () => {
   // 计算总文件大小和预估分片数
   const totalFileSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
   const estimatedChunks = datasetType === 'pretraining-data-cleaning' 
-    ? selectedFiles.length // 预训练数据清洗：每个文档产生一个语料
+    ? selectedFiles.length // 预训练数据清洗：每个文档产生一个语料，不分块
     : Math.ceil(selectedFiles.length * 2000 / processingConfig.chunkSize); // 其他类型：按分块计算
   const estimatedProcessingTime = datasetType === 'pretraining-data-cleaning'
     ? Math.ceil(selectedFiles.length / processingConfig.batchSize * 2) // 预训练数据清洗：按文档数量计算
@@ -170,14 +170,39 @@ export const Step4PreviewConfirm: React.FC = () => {
   // 根据配置参数生成文件分片
   const generateFileChunks = (content: string, fileName: string): ChunkPreview[] => {
     const chunks: ChunkPreview[] = [];
-    const chunkSize = processingConfig.chunkSize;
-    const overlap = processingConfig.chunkOverlap;
-    
-    console.log(`分片配置 - 文件: ${fileName}, 分片大小: ${chunkSize}, 重叠: ${overlap}`);
     
     // 清理内容，但保留基本结构
     const cleanContent = content.replace(/\r\n/g, '\n').replace(/\n{4,}/g, '\n\n\n').trim();
     console.log(`清理后内容长度: ${cleanContent.length} 字符`);
+    
+    // 预训练数据清洗不需要分块，直接返回整个文档
+    if (datasetType === 'pretraining-data-cleaning') {
+      console.log(`预训练数据清洗模式，不进行分块，直接处理整个文档`);
+      
+      // 应用最大文档长度限制
+      const maxDocumentLength = processingConfig.maxDocumentLength || 50000;
+      let finalContent = cleanContent;
+      
+      if (cleanContent.length > maxDocumentLength) {
+        finalContent = cleanContent.substring(0, maxDocumentLength);
+        console.log(`文档长度 ${cleanContent.length} 超过限制 ${maxDocumentLength}，截断到 ${finalContent.length}`);
+      }
+      
+      return [{
+        id: 1,
+        content: finalContent,
+        startPos: 0,
+        endPos: finalContent.length,
+        size: finalContent.length,
+        sourceFile: fileName
+      }];
+    }
+    
+    // 其他数据集类型使用分块逻辑
+    const chunkSize = processingConfig.chunkSize;
+    const overlap = processingConfig.chunkOverlap;
+    
+    console.log(`分片配置 - 文件: ${fileName}, 分片大小: ${chunkSize}, 重叠: ${overlap}`);
     
     // 如果内容太短，直接返回整个内容作为一个分片
     if (cleanContent.length <= chunkSize) {
@@ -368,8 +393,11 @@ export const Step4PreviewConfirm: React.FC = () => {
           processing_config: {
             dataset_type: datasetType,
             output_format: outputFormat,
-            chunk_size: processingConfig.chunkSize,
-            chunk_overlap: processingConfig.chunkOverlap,
+            // 预训练数据清洗不需要分块参数
+            ...(datasetType !== 'pretraining-data-cleaning' && {
+              chunk_size: processingConfig.chunkSize,
+              chunk_overlap: processingConfig.chunkOverlap,
+            }),
             preserve_structure: processingConfig.preserveStructure,
             split_by_headers: processingConfig.splitByHeaders,
             maxDocumentLength: processingConfig.maxDocumentLength, // 预训练数据清洗最大文档长度

@@ -584,14 +584,17 @@ def _generate_pretraining_cleaning_data(content: str, llm_config: LLMConfig, pro
     start_time = time.time()
     logger.info("开始清洗预训练数据...")
 
-    # 根据配置选择分块方法
-    chunk_size = processing_config.get('chunk_size', 1000)
-    chunk_overlap = processing_config.get('chunk_overlap', 200)
+    # 对于预训练数据清洗，使用maxDocumentLength进行分块
+    max_document_length = processing_config.get('maxDocumentLength', 50000)
     
-    if chunk_overlap > 0:
-        chunks = _split_content_into_chunks_with_overlap(content, chunk_size, chunk_overlap)
+    # 如果文档长度超过限制，按maxDocumentLength分块处理
+    if len(content) > max_document_length:
+        logger.info(f"文档长度 {len(content)} 超过限制 {max_document_length}，按块处理")
+        chunks = _split_content_into_chunks(content, max_document_length)
+        logger.info(f"文档被分为 {len(chunks)} 个块进行处理")
     else:
-        chunks = _split_content_into_chunks(content, chunk_size)
+        # 如果文档长度在限制内，直接处理整个文档
+        chunks = [content]
     
     if not chunks:
         logger.warning("内容分块后为空，无法进行清洗")
@@ -1947,85 +1950,3 @@ def _parse_classification_response_with_thinking(response_data: Dict, dataset_ty
         except:
             return [] 
 
-def _smart_truncate_document(content: str, max_length: int) -> str:
-    """智能截断文档，尽量在句子或段落边界截断"""
-    try:
-        import re
-        
-        if len(content) <= max_length:
-            return content
-        
-        # 首先尝试截断到最大长度的90%位置，然后寻找合适的截断点
-        target_length = int(max_length * 0.9)
-        
-        # 如果内容太短，直接截断
-        if target_length < 100:
-            return content[:max_length]
-        
-        # 获取目标长度附近的内容
-        truncated_content = content[:target_length]
-        remaining_content = content[target_length:max_length]
-        
-        # 优先级：段落边界 > 句子边界 > 标点符号 > 单词边界
-        
-        # 1. 尝试在段落边界截断（双换行）
-        paragraph_match = re.search(r'(.+?)(\n\s*\n)', truncated_content[::-1])
-        if paragraph_match:
-            # 找到最后的段落边界
-            last_paragraph_end = len(truncated_content) - paragraph_match.start()
-            if last_paragraph_end > target_length * 0.7:  # 确保不会截断得太短
-                logger.info(f"在段落边界截断文档，位置: {last_paragraph_end}")
-                return content[:last_paragraph_end]
-        
-        # 2. 尝试在句子边界截断
-        sentence_delimiters = ['。', '！', '？', '.', '!', '?']
-        best_pos = -1
-        
-        # 在剩余内容中寻找句子结束符
-        for i, char in enumerate(remaining_content):
-            if char in sentence_delimiters:
-                pos = target_length + i + 1
-                if pos <= max_length:
-                    best_pos = pos
-                else:
-                    break
-        
-        if best_pos > 0:
-            logger.info(f"在句子边界截断文档，位置: {best_pos}")
-            return content[:best_pos]
-        
-        # 3. 尝试在其他标点符号截断
-        other_punctuation = ['，', '；', '：', ',', ';', ':', '、']
-        for i, char in enumerate(remaining_content):
-            if char in other_punctuation:
-                pos = target_length + i + 1
-                if pos <= max_length:
-                    best_pos = pos
-                else:
-                    break
-        
-        if best_pos > 0:
-            logger.info(f"在标点符号截断文档，位置: {best_pos}")
-            return content[:best_pos]
-        
-        # 4. 尝试在单词边界截断（空格或换行）
-        for i, char in enumerate(remaining_content):
-            if char in [' ', '\n', '\t']:
-                pos = target_length + i
-                if pos <= max_length:
-                    best_pos = pos
-                else:
-                    break
-        
-        if best_pos > 0:
-            logger.info(f"在单词边界截断文档，位置: {best_pos}")
-            return content[:best_pos]
-        
-        # 5. 最后回退到硬截断
-        logger.info(f"使用硬截断，位置: {max_length}")
-        return content[:max_length]
-        
-    except Exception as e:
-        logger.error(f"智能截断文档失败: {str(e)}")
-        # 回退到简单截断
-        return content[:max_length]
