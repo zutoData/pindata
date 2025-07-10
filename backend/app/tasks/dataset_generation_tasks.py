@@ -1269,6 +1269,8 @@ def _parse_pretraining_cleaning_response(response: str, chunk_index: int) -> Lis
 def _parse_pretraining_cleaning_response_fallback(response: str, chunk_index: int) -> List[Dict]:
     """解析预训练数据清洗响应的回退方法 - 输出完整的清洗后语料"""
     try:
+        import re
+        
         if not response or not response.strip():
             return []
         

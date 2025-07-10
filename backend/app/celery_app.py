@@ -15,8 +15,27 @@ def make_celery(app_name=__name__):
         broker_connection_retry=True,
         broker_connection_retry_on_startup=True,
         broker_connection_max_retries=10,
+        broker_pool_limit=10,
+        broker_heartbeat=30,
+        broker_heartbeat_checkrate=2.0,
+        
+        # Redis 连接池配置
+        redis_socket_keepalive=True,
+        redis_socket_keepalive_options={
+            'TCP_KEEPIDLE': 1,
+            'TCP_KEEPINTVL': 3,
+            'TCP_KEEPCNT': 5,
+        },
+        redis_retry_on_timeout=True,
+        redis_socket_timeout=5.0,
+        redis_socket_connect_timeout=5.0,
+        
+        # Result backend 配置优化
         result_backend_always_retry=True,
         result_backend_retry_on_timeout=True,
+        result_backend_max_retries=10,
+        result_expires=3600,  # 1小时后过期
+        result_cache_max=1000,
         
         # 序列化配置
         task_serializer=getattr(Config, 'CELERY_TASK_SERIALIZER', 'json'),
@@ -29,12 +48,22 @@ def make_celery(app_name=__name__):
         
         # 任务配置
         task_track_started=True,
-        task_time_limit=30 * 60,  # 30分钟超时
-        task_soft_time_limit=25 * 60,  # 25分钟软超时
+        task_time_limit=None,  # 无时间限制，适用于长时间数据抽取任务
+        task_soft_time_limit=None,  # 无软时间限制
+        task_acks_late=True,
+        task_reject_on_worker_lost=True,
+        task_ignore_result=False,
         
-        # Worker 配置
+        # Worker 配置 - 优化长时间任务
         worker_prefetch_multiplier=1,
-        worker_max_tasks_per_child=1000,
+        worker_max_tasks_per_child=None,  # 不限制任务数，避免长时间任务中途重启
+        worker_disable_rate_limits=True,
+        worker_log_format='[%(asctime)s: %(levelname)s/%(processName)s] %(message)s',
+        worker_task_log_format='[%(asctime)s: %(levelname)s/%(processName)s][%(task_name)s(%(task_id)s)] %(message)s',
+        
+        # 监控配置
+        task_send_sent_event=True,
+        worker_send_task_events=True,
         
         # 自动发现任务
         include=[

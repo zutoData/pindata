@@ -206,7 +206,7 @@ export const Datasets = (): JSX.Element => {
             </h2>
           </div>
           <Badge variant="secondary" className="text-[#4f7096] bg-[#f0f4f8]">
-            {t('datasets.totalDatasets', { count: formatNumber(totalDatasets) })}
+            {t('datasets.totalDatasets', { count: totalDatasets })}
           </Badge>
         </div>
         <div className="flex gap-2">
