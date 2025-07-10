@@ -124,10 +124,14 @@ def generate_dataset_task(
                     total_generated_entries += file_result.get('generated_entries', 0)
                     processed_files += 1
                     
-                    # 更新进度
-                    progress = int((processed_files / len(selected_files)) * 100)
-                    task.progress = progress
-                    db.session.commit()
+                    # 更新进度 - 使用独立事务
+                    try:
+                        progress = int((processed_files / len(selected_files)) * 100)
+                        task.progress = progress
+                        db.session.commit()
+                    except Exception as progress_error:
+                        logger.warning(f"更新进度失败: {str(progress_error)}")
+                        db.session.rollback()
                     
                     # 更新Celery状态
                     self.update_state(
@@ -149,6 +153,13 @@ def generate_dataset_task(
                     
                 except Exception as file_error:
                     logger.error(f"处理文件失败: {file_data.get('name', 'unknown')}, 错误: {str(file_error)}")
+                    
+                    # 回滚可能无效的事务
+                    try:
+                        db.session.rollback()
+                    except Exception as rollback_error:
+                        logger.warning(f"回滚事务失败: {str(rollback_error)}")
+                    
                     # 继续处理其他文件，但记录错误
                     conversion_results.append({
                         'filename': file_data.get('name', 'unknown'),
@@ -232,15 +243,28 @@ def generate_dataset_task(
             logger.error(f"数据集生成失败: {dataset_id}, 错误: {error_message}, "
                         f"耗时: {total_duration:.2f}秒")
             
-            # 更新任务失败状态
-            if task:
-                task.status = TaskStatus.FAILED
-                task.error_message = error_message
-                task.completed_at = datetime.utcnow()
+            # 更新任务失败状态 - 使用新的数据库会话
+            try:
+                # 先回滚当前可能无效的事务
+                db.session.rollback()
+                
+                # 重新获取任务对象，避免使用可能已过期的对象
+                if task:
+                    fresh_task = TaskModel.query.get(task.id)
+                    if fresh_task:
+                        fresh_task.status = TaskStatus.FAILED
+                        fresh_task.error_message = error_message
+                        fresh_task.completed_at = datetime.utcnow()
+                        db.session.commit()
+                        logger.info("成功更新任务失败状态")
+                    else:
+                        logger.warning("无法重新获取任务对象")
+            except Exception as commit_error:
+                logger.error(f"更新任务失败状态时出错: {str(commit_error)}")
                 try:
-                    db.session.commit()
-                except Exception as commit_error:
-                    logger.error(f"更新任务失败状态时出错: {str(commit_error)}")
+                    db.session.rollback()
+                except:
+                    pass
             
             raise Exception(error_message)
 
@@ -274,12 +298,17 @@ def _create_dataset_version(dataset: Dataset, dataset_config: Dict) -> EnhancedD
         
         db.session.add(version)
         db.session.flush()
+        db.session.commit()  # 立即提交版本记录
         
         logger.info(f"创建数据集版本: {version.id}, 版本号: {version_number}")
         return version
         
     except Exception as e:
         logger.error(f"创建数据集版本失败: {str(e)}")
+        try:
+            db.session.rollback()
+        except Exception as rollback_error:
+            logger.warning(f"回滚创建版本事务失败: {str(rollback_error)}")
         raise
 
 def _process_single_file(
@@ -375,6 +404,15 @@ def _process_single_file(
         
     except Exception as e:
         logger.error(f"处理文件失败: {filename}, 错误: {str(e)}")
+        
+        # 如果是数据库相关的错误，尝试回滚事务
+        if "transaction" in str(e).lower() or "database" in str(e).lower() or "sql" in str(e).lower():
+            try:
+                db.session.rollback()
+                logger.info(f"已回滚数据库事务，文件: {filename}")
+            except Exception as rollback_error:
+                logger.warning(f"回滚事务失败: {str(rollback_error)}")
+        
         raise
 
 def _get_file_content(file_data: Dict) -> str:
@@ -1552,6 +1590,7 @@ def _save_generated_data(version: EnhancedDatasetVersion, original_filename: str
             
             db.session.add(dataset_file)
             db.session.flush()
+            db.session.commit()  # 立即提交文件记录，避免长时间持有事务
             
             logger.info(f"保存生成数据文件: {generated_filename}, 格式: {output_format}, "
                        f"大小: {file_size} 字节, 条目数: {len(converted_data)}")
@@ -1841,6 +1880,11 @@ def _update_version_stats(version: EnhancedDatasetVersion, conversion_results: L
         
     except Exception as e:
         logger.error(f"更新版本统计失败: {str(e)}")
+        # 回滚失败的事务
+        try:
+            db.session.rollback()
+        except Exception as rollback_error:
+            logger.warning(f"回滚版本统计事务失败: {str(rollback_error)}")
         # 不抛出异常，避免影响主流程 
 
 def _parse_qa_response_with_thinking(response_data: Dict, dataset_type: str = None, include_thinking: bool = False) -> List[Dict]:
